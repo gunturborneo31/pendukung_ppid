@@ -1,0 +1,56 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+@source '../**/*.blade.php';
+@source '../**/*.js';
+@source '../**/*.vue';
+
+@theme {
+    --font-sans: ui-sans-serif, system-ui, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
+        'Segoe UI Symbol', 'Noto Color Emoji';
+}
+
+.tiptap-wrapper .ProseMirror {
+    outline: none;
+    min-height: 16rem;
+    padding: 1rem;
+}
+
+.tiptap-wrapper .ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    color: #9ca3af;
+    float: left;
+    pointer-events: none;
+    height: 0;
+}
+
+.tiptap-wrapper .toolbar button {
+    padding: 0.25rem 0.5rem;
+    border-radius: 0.25rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1px solid transparent;
+    background: transparent;
+}
+
+.tiptap-wrapper .toolbar button:hover {
+    background-color: #e5e7eb;
+}
+
+.tiptap-wrapper .toolbar button.active {
+    background-color: #dbeafe;
+    color: #1d4ed8;
+    border-color: #bfdbfe;
+}
+
+.prose table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.prose table td, .prose table th {
+    border: 1px solid #d1d5db;
+    padding: 0.5rem;
+}
