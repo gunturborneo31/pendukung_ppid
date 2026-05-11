@@ -36,7 +36,7 @@
                 <th>#</th>
                 <th>Judul Artikel</th>
                 <th>Kategori</th>
-                <th>Penulis</th>
+                <th>Penulis (Bidang)</th>
                 <th>Editor</th>
                 <th>Status</th>
                 <th>Platform</th>
@@ -50,7 +50,12 @@
                 <td>{{ $i + 1 }}</td>
                 <td>{{ Str::limit($article->title, 40) }}</td>
                 <td>{{ $article->category?->name ?? '-' }}</td>
-                <td>{{ $article->author?->name ?? '-' }}</td>
+                <td>
+                    {{ $article->author?->name ?? '-' }}
+                    @if(!empty($article->author?->field))
+                        ({{ $article->author->field }})
+                    @endif
+                </td>
                 <td>{{ $article->editor?->name ?? '-' }}</td>
                 <td class="status-{{ $article->status }}">{{ $article->status }}</td>
                 <td>{{ $article->target_platform }}</td>

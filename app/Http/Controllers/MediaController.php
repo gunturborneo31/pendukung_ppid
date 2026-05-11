@@ -12,13 +12,15 @@ class MediaController extends Controller
     public function store(Request $request)
     {
         $request->validate([
-            'file' => 'required|file|mimes:jpg,jpeg,png,gif,webp,mp4,mov|max:20480',
+            'file' => 'required|file|mimes:jpg,jpeg,png,gif,webp,mp4,mov,webm,ogg,pdf,doc,docx,xls,xlsx,ppt,pptx,zip,rar,txt|max:51200',
             'article_id' => 'required|exists:articles,id',
             'alt_text' => 'nullable|string|max:255',
+            'description' => 'nullable|string|max:255',
         ]);
 
         $file = $request->file('file');
-        $type = str_starts_with($file->getMimeType(), 'image/') ? 'image' : 'video';
+        $mime = (string) $file->getMimeType();
+        $type = str_starts_with($mime, 'video/') ? 'video' : 'image';
         $path = $file->store('media', 'public');
 
         $media = Media::create([
@@ -28,6 +30,7 @@ class MediaController extends Controller
             'path' => $path,
             'alt_text' => $request->alt_text,
             'size' => $file->getSize(),
+            'description' => $request->description,
         ]);
 
         return response()->json([
@@ -35,6 +38,7 @@ class MediaController extends Controller
             'url' => Storage::url($path),
             'type' => $type,
             'alt_text' => $media->alt_text,
+            'description' => $media->description,
         ]);
     }
 

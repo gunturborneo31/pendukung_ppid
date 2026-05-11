@@ -1,0 +1,5 @@
+untuk di tab instagram, buat kalau gambar yang terpilih itu sudah langsung muncul di preview instagram sebelah kanan, dan dapat di geser atau ada tombol ubah dan hapus di preview kanan mockup instagram tersebut
+
+untuk di editor jangan langsung menampilkan halaman edit, tetapi buat tampilan preview seperti hasil jadi terlebih dahulu, dan buat tampilannya itu ada tab untuk website dan instagram, dan sediakan tombol apakah sudah benar, diperbaiki atau dikembalikan dan jika dikembalikan editor haru memberikan catatan
+
+untuk berita yang di edit oleh editor buat history berita yang dari kontributor dan editor itu dibedakan, karena nanti akan digunakan untuk bahan evalusasi kedepan

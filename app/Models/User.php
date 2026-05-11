@@ -12,7 +12,7 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'role'];
+    protected $fillable = ['name', 'email', 'password', 'role', 'field'];
 
     protected $hidden = ['password', 'remember_token'];
 
@@ -23,6 +23,7 @@ class User extends Authenticatable
             'password' => 'hashed',
         ];
     }
+
 
     public function articles()
     {
@@ -42,6 +43,14 @@ class User extends Authenticatable
     public function hasRole(string $role): bool
     {
         return $this->role === $role;
+    }
+
+    /**
+     * Get bidang (field) yang diwakili editor.
+     */
+    public function getFieldAttribute($value)
+    {
+        return $value ?: 'Umum';
     }
 
     public function hasAnyRole(array $roles): bool

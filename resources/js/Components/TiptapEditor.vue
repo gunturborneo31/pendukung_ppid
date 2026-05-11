@@ -15,6 +15,24 @@
         <s>S</s>
       </button>
       <div class="w-px bg-gray-300 mx-1"></div>
+      <template v-if="showAlign">
+        <button type="button" @click="editor?.chain().focus().setTextAlign('left').run()" :class="{ active: editor?.isActive({ textAlign: 'left' }) }" title="Rata Kiri">⬅️</button>
+        <button type="button" @click="editor?.chain().focus().setTextAlign('center').run()" :class="{ active: editor?.isActive({ textAlign: 'center' }) }" title="Tengah">↔️</button>
+        <button type="button" @click="editor?.chain().focus().setTextAlign('right').run()" :class="{ active: editor?.isActive({ textAlign: 'right' }) }" title="Rata Kanan">➡️</button>
+        <button type="button" @click="editor?.chain().focus().setTextAlign('justify').run()" :class="{ active: editor?.isActive({ textAlign: 'justify' }) }" title="Justify">⏹️</button>
+        <div class="w-px bg-gray-300 mx-1"></div>
+      </template>
+      <template v-if="showFontSize">
+        <select @change="setFontSize($event)" class="text-xs border rounded px-1 py-0.5">
+          <option value="">Font</option>
+          <option value="12px">12</option>
+          <option value="14px">14</option>
+          <option value="16px">16</option>
+          <option value="18px">18</option>
+          <option value="20px">20</option>
+          <option value="24px">24</option>
+        </select>
+      </template>
       <button type="button" @click="editor?.chain().focus().toggleHeading({ level: 1 }).run()"
         :class="{ active: editor?.isActive('heading', { level: 1 }) }">H1</button>
       <button type="button" @click="editor?.chain().focus().toggleHeading({ level: 2 }).run()"
@@ -60,9 +78,14 @@ import { computed, watch, onBeforeUnmount } from 'vue';
 const props = defineProps({
   modelValue: { type: Object, default: null },
   placeholder: { type: String, default: 'Tulis konten artikel di sini...' },
+  showAlign: { type: Boolean, default: false },
+  showFontSize: { type: Boolean, default: false },
 });
 
 const emit = defineEmits(['update:modelValue']);
+
+import TextAlign from '@tiptap/extension-text-align';
+import { TextStyle } from '@tiptap/extension-text-style';
 
 const editor = useEditor({
   content: props.modelValue,
@@ -71,11 +94,21 @@ const editor = useEditor({
     Image.configure({ inline: false, allowBase64: false }),
     Link.configure({ openOnClick: false }),
     Placeholder.configure({ placeholder: props.placeholder }),
+    ...(props.showAlign ? [TextAlign.configure({ types: ['heading', 'paragraph'] })] : []),
+    ...(props.showFontSize ? [TextStyle] : []),
   ],
   onUpdate: ({ editor }) => {
     emit('update:modelValue', editor.getJSON());
   },
 });
+function setFontSize(e) {
+  const size = e.target.value;
+  if (size) {
+    editor.value?.chain().focus().setMark('textStyle', { fontSize: size }).run();
+  } else {
+    editor.value?.chain().focus().unsetMark('textStyle').run();
+  }
+}
 
 watch(() => props.modelValue, (val) => {
   if (editor.value && JSON.stringify(val) !== JSON.stringify(editor.value.getJSON())) {

@@ -3,8 +3,11 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#1e40af">
-    <title inertia>{{ config('app.name', 'Pendukung PPID') }}</title>
+    <title inertia>{{ config('app.name', 'Pendukung PPID Bappelitbangda Mahulu') }}</title>
+    <link rel="icon" type="image/png" href="/image/logo_mahulu.png">
+    <link rel="apple-touch-icon" href="/image/logo_mahulu.png">
     <link rel="manifest" href="/manifest.webmanifest">
     @routes
     @vite(['resources/css/app.css', 'resources/js/app.js'])

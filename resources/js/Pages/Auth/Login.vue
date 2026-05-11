@@ -1,59 +1,79 @@
 <template>
-  <div class="min-h-screen bg-gradient-to-br from-blue-900 to-blue-700 flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8">
-      <!-- Logo -->
-      <div class="text-center mb-8">
-        <div class="text-4xl mb-3">📋</div>
-        <h1 class="text-2xl font-bold text-gray-900">Pendukung PPID</h1>
-        <p class="text-gray-500 text-sm mt-1">Sistem Manajemen Konten PPID</p>
+  <div class="min-h-screen bg-slate-50 flex">
+    <!-- Left branding panel -->
+    <div class="hidden lg:flex flex-col justify-between w-1/2 bg-indigo-700 p-12">
+      <div class="flex items-center gap-3">
+        <img src="/image/logo_mahulu.png" alt="Logo Mahulu" class="w-11 h-11 object-contain" />
+        <span class="text-white font-bold text-base">Pendukung PPID Bappelitbangda Mahulu</span>
       </div>
-
-      <!-- Error -->
-      <div v-if="errors.email" class="bg-red-50 border border-red-200 text-red-700 rounded-lg px-4 py-3 text-sm mb-4">
-        {{ errors.email }}
+      <div>
+        <h2 class="text-3xl font-bold text-white leading-snug mb-3">Kelola konten PPID<br/>dengan mudah & teratur.</h2>
+        <p class="text-indigo-200 text-sm leading-relaxed">Platform kolaborasi antara kontributor, editor, dan pimpinan untuk menghasilkan konten informasi publik yang berkualitas.</p>
       </div>
+      <div class="flex items-center gap-3 text-indigo-200 text-xs">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        Sistem Pendukung PPID Bappelitbangda Mahulu &copy; {{ new Date().getFullYear() }}
+      </div>
+    </div>
 
-      <!-- Form -->
-      <form @submit.prevent="submit" class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input v-model="form.email" type="email" required autocomplete="email"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            placeholder="email@ppid.local" />
+    <!-- Right form panel -->
+    <div class="flex-1 flex items-center justify-center p-6 lg:p-12">
+      <div class="w-full max-w-sm">
+        <!-- Mobile brand -->
+        <div class="flex items-center gap-2 mb-8 lg:hidden">
+          <img src="/image/logo_mahulu.png" alt="Logo Mahulu" class="w-9 h-9 object-contain" />
+          <span class="text-slate-800 font-bold text-sm">Pendukung PPID Bappelitbangda Mahulu</span>
         </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input v-model="form.password" type="password" required autocomplete="current-password"
-            class="w-full border border-gray-300 rounded-lg px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
-            placeholder="••••••••" />
-        </div>
-        <div class="flex items-center gap-2">
-          <input v-model="form.remember" type="checkbox" id="remember" class="rounded" />
-          <label for="remember" class="text-sm text-gray-600">Ingat saya</label>
-        </div>
-        <button type="submit" :disabled="form.processing"
-          class="w-full bg-blue-700 hover:bg-blue-800 text-white font-semibold py-2.5 rounded-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
-          {{ form.processing ? 'Memproses...' : 'Masuk' }}
-        </button>
-      </form>
 
-      <!-- Demo credentials -->
-      <div class="mt-6 p-4 bg-gray-50 rounded-lg">
-        <p class="text-xs font-semibold text-gray-500 mb-2">Demo Akun:</p>
-        <div class="space-y-1 text-xs text-gray-600">
-          <div class="flex justify-between">
-            <span>Kontributor:</span>
-            <button @click="fillCredentials('contributor@ppid.local')" class="text-blue-600 hover:underline">contributor@ppid.local</button>
+        <h1 class="text-2xl font-bold text-slate-900 mb-1">Selamat datang</h1>
+        <p class="text-slate-500 text-sm mb-8">Masuk untuk melanjutkan ke dashboard Anda.</p>
+
+        <!-- Error -->
+        <div v-if="errors.email" class="flex items-center gap-2 bg-red-50 border border-red-100 text-red-600 rounded-lg px-4 py-3 text-sm mb-5">
+          <svg class="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          {{ errors.email }}
+        </div>
+
+        <form @submit.prevent="submit" class="space-y-5">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5 tracking-wide uppercase">Email</label>
+            <input v-model="form.email" type="email" required autocomplete="email"
+              class="w-full border border-slate-200 bg-white rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition outline-none"
+              placeholder="nama@email.com" />
           </div>
-          <div class="flex justify-between">
-            <span>Editor:</span>
-            <button @click="fillCredentials('editor@ppid.local')" class="text-blue-600 hover:underline">editor@ppid.local</button>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1.5 tracking-wide uppercase">Password</label>
+            <input v-model="form.password" type="password" required autocomplete="current-password"
+              class="w-full border border-slate-200 bg-white rounded-xl px-4 py-3 text-sm text-slate-800 placeholder-slate-400 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition outline-none"
+              placeholder="••••••••" />
           </div>
-          <div class="flex justify-between">
-            <span>Pimpinan:</span>
-            <button @click="fillCredentials('leader@ppid.local')" class="text-blue-600 hover:underline">leader@ppid.local</button>
+          <div class="flex items-center gap-2">
+            <input v-model="form.remember" type="checkbox" id="remember" class="rounded border-slate-300 text-indigo-600" />
+            <label for="remember" class="text-sm text-slate-500">Ingat saya</label>
           </div>
-          <div class="mt-1 text-gray-400">Password: <code>password</code></div>
+          <button type="submit" :disabled="form.processing"
+            class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl transition disabled:opacity-50 text-sm shadow-sm shadow-indigo-200">
+            {{ form.processing ? 'Memproses...' : 'Masuk →' }}
+          </button>
+        </form>
+
+        <div class="mt-8 p-4 bg-slate-100 rounded-xl border border-slate-200">
+          <p class="text-xs font-semibold text-slate-400 mb-3 uppercase tracking-wide">Demo Akun</p>
+          <div class="space-y-2 text-xs text-slate-600">
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400">Kontributor</span>
+              <button @click="fillCredentials('contributor@ppid.local')" class="text-indigo-600 hover:text-indigo-800 font-medium">contributor@ppid.local</button>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400">Editor</span>
+              <button @click="fillCredentials('editor@ppid.local')" class="text-indigo-600 hover:text-indigo-800 font-medium">editor@ppid.local</button>
+            </div>
+            <div class="flex justify-between items-center">
+              <span class="text-slate-400">Pimpinan</span>
+              <button @click="fillCredentials('leader@ppid.local')" class="text-indigo-600 hover:text-indigo-800 font-medium">leader@ppid.local</button>
+            </div>
+            <p class="text-slate-400 pt-1">Password: <code class="bg-slate-200 px-1 rounded">password</code></p>
+          </div>
         </div>
       </div>
     </div>
@@ -63,12 +83,7 @@
 <script setup>
 import { useForm } from '@inertiajs/vue3';
 
-const form = useForm({
-  email: '',
-  password: '',
-  remember: false,
-});
-
+const form = useForm({ email: '', password: '', remember: false });
 const errors = form.errors;
 
 function fillCredentials(email) {

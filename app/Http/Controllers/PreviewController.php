@@ -9,7 +9,7 @@ class PreviewController extends Controller
     public function show(string $token)
     {
         $article = Article::where('preview_token', $token)
-            ->with(['author', 'category'])
+            ->with(['author', 'category', 'editor', 'seo', 'media'])
             ->firstOrFail();
 
         return view('preview', compact('article'));

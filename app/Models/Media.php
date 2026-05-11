@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class Media extends Model
 {
     protected $fillable = [
-        'article_id', 'uploader_id', 'type', 'path', 'alt_text', 'size',
+        'article_id', 'uploader_id', 'type', 'path', 'alt_text', 'size', 'description',
     ];
 
     public function article()

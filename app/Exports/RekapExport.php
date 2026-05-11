@@ -40,16 +40,19 @@ class RekapExport implements FromCollection, WithHeadings, WithMapping, WithStyl
 
     public function headings(): array
     {
-        return ['#', 'Judul', 'Kategori', 'Penulis', 'Editor', 'Status', 'Platform', 'Tanggal Buat', 'Tanggal Publikasi'];
+        return ['#', 'Judul', 'Kategori', 'Penulis (Bidang)', 'Editor', 'Status', 'Platform', 'Tanggal Buat', 'Tanggal Publikasi'];
     }
 
     public function map($article): array
     {
+        $authorName = $article->author?->name ?? '-';
+        $authorField = $article->author?->field ?? null;
+
         return [
             $article->id,
             $article->title,
             $article->category?->name ?? '-',
-            $article->author?->name ?? '-',
+            $authorField ? $authorName . ' (' . $authorField . ')' : $authorName,
             $article->editor?->name ?? '-',
             $article->status,
             $article->target_platform,

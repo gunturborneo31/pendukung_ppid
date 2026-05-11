@@ -21,9 +21,7 @@
     <div v-show="activeTab === 'ig'">
       <slot name="ig" />
     </div>
-    <div v-show="activeTab === 'seo'">
-      <slot name="seo" />
-    </div>
+    <!-- SEO tab removed -->
   </div>
 </template>
 
@@ -37,7 +35,6 @@ const props = defineProps({
 const tabs = [
   { id: 'web', label: '🌐 Konten Web' },
   { id: 'ig', label: '📷 Instagram' },
-  { id: 'seo', label: '🔍 SEO' },
 ];
 
 const activeTab = ref(props.defaultTab);
