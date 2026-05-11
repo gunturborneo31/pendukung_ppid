@@ -63,6 +63,12 @@
             </span>
             Kelola Kontributor
           </Link>
+          <Link href="/editor/approved" :class="navLinkClasses($page.url.startsWith('/editor/approved'))">
+            <span :class="navIconClasses($page.url.startsWith('/editor/approved'))">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </span>
+            Berita Disetujui Editor
+          </Link>
           <!-- <Link href="/editor/contributors/create" :class="navLinkClasses($page.url.startsWith('/editor/contributors/create'))">
             <span :class="navIconClasses($page.url.startsWith('/editor/contributors/create'))">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M18 9v6m3-3h-6M5 19h6a2 2 0 002-2v-1a4 4 0 10-8 0v1a2 2 0 002 2zm4-13a4 4 0 11-8 0 4 4 0 018 0z"/></svg>

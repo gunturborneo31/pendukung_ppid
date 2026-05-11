@@ -44,6 +44,7 @@ Route::middleware(['auth'])->group(function () {
     // Editor
     Route::middleware(['role:editor'])->group(function () {
         Route::get('/editor/inbox', [EditorController::class, 'inbox'])->name('editor.inbox');
+        Route::get('/editor/approved', [EditorController::class, 'approved'])->name('editor.approved');
         Route::get('/editor/articles/{article}', [EditorController::class, 'show'])->name('editor.show');
         Route::get('/editor/articles/{article}/edit-full', [ArticleController::class, 'editForEditor'])->name('editor.articles.editFull');
         Route::put('/editor/articles/{article}', [EditorController::class, 'update'])->name('editor.update');

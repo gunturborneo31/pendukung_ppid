@@ -11,6 +11,19 @@ use Inertia\Inertia;
 
 class EditorController extends Controller
 {
+    public function approved()
+    {
+        $articles = Article::where('editor_id', auth()->id())
+            ->whereIn('status', ['approved', 'published'])
+            ->with(['author', 'category', 'editor'])
+            ->latest('published_at')
+            ->paginate(15);
+
+        return Inertia::render('Editor/Approved', [
+            'articles' => $articles,
+        ]);
+    }
+
     public function inbox()
     {
         $articles = Article::whereIn('status', ['submitted', 'returned'])
