@@ -57,7 +57,8 @@
           </button>
         </form>
 
-        <!-- hidden -->
+        <!-- hidden 
+         smebunyikan untuk sementara, karena belum ada fitur demo akun -->
         <div class="mt-8 p-4 bg-slate-100 rounded-xl border border-slate-200 hidden">
           <p class="text-xs font-semibold text-slate-400 mb-3 uppercase tracking-wide">Demo Akun</p>
           <div class="space-y-2 text-xs text-slate-600">
