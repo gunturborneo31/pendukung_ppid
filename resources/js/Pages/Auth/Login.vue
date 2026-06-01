@@ -57,26 +57,7 @@
           </button>
         </form>
 
-        <!-- hidden 
-         smebunyikan untuk sementara, karena belum ada fitur demo akun -->
-        <div class="mt-8 p-4 bg-slate-100 rounded-xl border border-slate-200 hidden">
-          <p class="text-xs font-semibold text-slate-400 mb-3 uppercase tracking-wide">Demo Akun</p>
-          <div class="space-y-2 text-xs text-slate-600">
-            <div class="flex justify-between items-center">
-              <span class="text-slate-400">Kontributor</span>
-              <button @click="fillCredentials('contributor@ppid.local')" class="text-indigo-600 hover:text-indigo-800 font-medium">contributor@ppid.local</button>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-slate-400">Editor</span>
-              <button @click="fillCredentials('editor@ppid.local')" class="text-indigo-600 hover:text-indigo-800 font-medium">editor@ppid.local</button>
-            </div>
-            <div class="flex justify-between items-center">
-              <span class="text-slate-400">Pimpinan</span>
-              <button @click="fillCredentials('leader@ppid.local')" class="text-indigo-600 hover:text-indigo-800 font-medium">leader@ppid.local</button>
-            </div>
-            <p class="text-slate-400 pt-1">Password: <code class="bg-slate-200 px-1 rounded">password</code></p>
-          </div>
-        </div>
+        
       </div>
     </div>
   </div>
