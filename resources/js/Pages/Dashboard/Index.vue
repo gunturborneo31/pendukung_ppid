@@ -142,6 +142,8 @@
         <Link href="/editor/inbox" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition shadow-sm">
           Buka Inbox Review
         </Link>
+
+        <OpdSummaryTable :opds="opdSummary" />
       </template>
 
       <!-- Leader Dashboard -->
@@ -171,6 +173,29 @@
         <Link href="/rekap" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition shadow-sm">
           Lihat Rekap Lengkap
         </Link>
+
+        <OpdSummaryTable :opds="opdSummary" />
+      </template>
+
+      <!-- Superadmin Dashboard -->
+      <template v-if="$page.props.auth.user.role === 'superadmin'">
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <StatCard title="Total OPD" :value="stats.total_opd" color="blue" icon="🏢" />
+          <StatCard title="OPD Aktif" :value="stats.active_opd" color="green" icon="✅" />
+          <StatCard title="Akun Editor" :value="stats.total_editors" color="gray" icon="🧑‍💼" />
+          <StatCard title="Akun Leader" :value="stats.total_leaders" color="yellow" icon="🧑‍⚖️" />
+        </div>
+
+        <div class="flex gap-3">
+          <Link href="/superadmin/opds" class="inline-flex items-center gap-2 bg-indigo-600 text-white px-5 py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition shadow-sm">
+            Kelola OPD
+          </Link>
+          <Link href="/superadmin/users" class="inline-flex items-center gap-2 border border-slate-200 text-slate-600 px-5 py-2.5 rounded-xl text-sm hover:bg-slate-50 transition">
+            Kelola Editor &amp; Leader
+          </Link>
+        </div>
+
+        <OpdSummaryTable :opds="opdSummary" />
       </template>
     </div>
   </AppLayout>
@@ -189,6 +214,7 @@ const props = defineProps({
   recentArticles: Array,
   inbox: Array,
   recentPublished: Array,
+  opdSummary: Array,
 });
 
 const overallLabels = {
@@ -275,5 +301,46 @@ const StatusBadge = {
       },
     },
     template: `<span class="text-xs px-2.5 py-1 rounded-lg font-medium" :class="classes">{{ status }}</span>`,
+};
+
+const OpdSummaryTable = {
+  props: ['opds'],
+  components: { Link },
+  template: `
+    <div v-if="opds?.length" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="text-sm font-semibold text-slate-700">Status Artikel Seluruh OPD</h2>
+        <Link href="/dashboard/opd" class="text-xs text-indigo-600 hover:underline">Lihat detail</Link>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="text-left text-[11px] uppercase tracking-wide text-slate-400 border-b border-slate-100">
+              <th class="py-2 pr-3">OPD</th>
+              <th class="py-2 px-2 text-center">Kontributor</th>
+              <th class="py-2 px-2 text-center">Draft</th>
+              <th class="py-2 px-2 text-center">Submitted</th>
+              <th class="py-2 px-2 text-center">Returned</th>
+              <th class="py-2 px-2 text-center">Approved</th>
+              <th class="py-2 px-2 text-center">Published</th>
+              <th class="py-2 pl-2 text-center">Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="opd in opds" :key="opd.id" class="border-b border-slate-50 hover:bg-slate-50">
+              <td class="py-2 pr-3 font-medium text-slate-800">{{ opd.name }}</td>
+              <td class="py-2 px-2 text-center text-slate-500">{{ opd.contributors_count }}</td>
+              <td class="py-2 px-2 text-center text-slate-500">{{ opd.draft_count }}</td>
+              <td class="py-2 px-2 text-center text-amber-600">{{ opd.submitted_count }}</td>
+              <td class="py-2 px-2 text-center text-rose-600">{{ opd.returned_count }}</td>
+              <td class="py-2 px-2 text-center text-indigo-600">{{ opd.approved_count }}</td>
+              <td class="py-2 px-2 text-center text-emerald-600">{{ opd.published_count }}</td>
+              <td class="py-2 pl-2 text-center font-semibold text-slate-800">{{ opd.total_count }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  `,
 };
 </script>

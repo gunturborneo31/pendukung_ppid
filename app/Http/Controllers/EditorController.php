@@ -6,39 +6,53 @@ use App\Http\Requests\ArticleRequest;
 use App\Models\Article;
 use App\Models\ActivityLog;
 use App\Models\Media;
+use App\Models\Opd;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 
 class EditorController extends Controller
 {
-    public function approved()
+    public function __construct(protected FirebaseNotificationService $notifier)
+    {
+    }
+
+    public function approved(Request $request)
     {
         $articles = Article::where('editor_id', auth()->id())
             ->whereIn('status', ['approved', 'published'])
-            ->with(['author', 'category', 'editor'])
+            ->when($request->filled('opd_id'), fn ($q) => $q->where('opd_id', $request->opd_id))
+            ->with(['author', 'category', 'editor', 'opd'])
             ->latest('published_at')
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return Inertia::render('Editor/Approved', [
             'articles' => $articles,
+            'opds' => Opd::orderBy('name')->get(),
+            'filters' => $request->only('opd_id'),
         ]);
     }
 
-    public function inbox()
+    public function inbox(Request $request)
     {
         $articles = Article::whereIn('status', ['submitted', 'returned'])
-            ->with(['author', 'category', 'editor'])
+            ->when($request->filled('opd_id'), fn ($q) => $q->where('opd_id', $request->opd_id))
+            ->with(['author', 'category', 'editor', 'opd'])
             ->latest()
-            ->paginate(15);
+            ->paginate(15)
+            ->withQueryString();
 
         return Inertia::render('Editor/Inbox', [
             'articles' => $articles,
+            'opds' => Opd::orderBy('name')->get(),
+            'filters' => $request->only('opd_id'),
         ]);
     }
 
     public function show(Article $article)
     {
-        $article = $article->load(['author', 'category', 'seo', 'media', 'activityLogs.user']);
+        $article = $article->load(['author', 'category', 'opd', 'seo', 'media', 'activityLogs.user']);
         $article->body_web_html = $this->renderBodyWebHtml($article->body_web);
 
         return Inertia::render('Editor/Show', [
@@ -225,6 +239,13 @@ class EditorController extends Controller
             'notes' => 'Artikel disetujui dan dipublikasikan',
         ]);
 
+        $this->notifier->sendToUser(
+            $article->author,
+            'Artikel Disetujui',
+            "Artikel \"{$article->title}\" telah disetujui dan dipublikasikan.",
+            ['type' => 'approved', 'article_id' => (string) $article->id]
+        );
+
         return redirect()->route('editor.inbox')
             ->with('message', 'Artikel berhasil dipublikasikan.');
     }
@@ -247,6 +268,14 @@ class EditorController extends Controller
             'action' => 'returned',
             'notes' => $request->editor_notes,
         ]);
+
+        // Beri tahu kontributor bahwa artikelnya perlu direvisi, sertakan catatan editor.
+        $this->notifier->sendToUser(
+            $article->author,
+            'Artikel Perlu Direvisi',
+            "Artikel \"{$article->title}\" dikembalikan untuk revisi: {$request->editor_notes}",
+            ['type' => 'revision', 'article_id' => (string) $article->id]
+        );
 
         return redirect()->route('editor.inbox')
             ->with('message', 'Artikel dikembalikan ke kontributor.');

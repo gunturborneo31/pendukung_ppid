@@ -35,6 +35,7 @@
             <tr>
                 <th>#</th>
                 <th>Judul Artikel</th>
+                <th>OPD</th>
                 <th>Kategori</th>
                 <th>Penulis (Bidang)</th>
                 <th>Editor</th>
@@ -49,6 +50,7 @@
             <tr>
                 <td>{{ $i + 1 }}</td>
                 <td>{{ Str::limit($article->title, 40) }}</td>
+                <td>{{ $article->opd?->name ?? '-' }}</td>
                 <td>{{ $article->category?->name ?? '-' }}</td>
                 <td>
                     {{ $article->author?->name ?? '-' }}

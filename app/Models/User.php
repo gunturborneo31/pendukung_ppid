@@ -12,9 +12,9 @@ class User extends Authenticatable
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
 
-    protected $fillable = ['name', 'email', 'password', 'role', 'field'];
+    protected $fillable = ['name', 'email', 'password', 'role', 'field', 'opd_id', 'fcm_token'];
 
-    protected $hidden = ['password', 'remember_token'];
+    protected $hidden = ['password', 'remember_token', 'fcm_token'];
 
     protected function casts(): array
     {
@@ -38,6 +38,19 @@ class User extends Authenticatable
     public function activityLogs()
     {
         return $this->hasMany(ActivityLog::class);
+    }
+
+    public function opd()
+    {
+        return $this->belongsTo(Opd::class);
+    }
+
+    /**
+     * Role yang boleh mengakses data lintas OPD (superadmin, editor, leader).
+     */
+    public function hasCrossOpdAccess(): bool
+    {
+        return in_array($this->role, ['superadmin', 'editor', 'leader']);
     }
 
     public function hasRole(string $role): bool

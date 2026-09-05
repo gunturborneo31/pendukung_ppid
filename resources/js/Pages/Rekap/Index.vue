@@ -30,7 +30,11 @@
 
       <!-- Filters -->
       <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
-        <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
+        <div class="grid grid-cols-2 md:grid-cols-6 gap-3">
+          <select v-if="opds?.length" v-model="localFilters.opd_id" class="border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition text-slate-700">
+            <option value="">Semua OPD</option>
+            <option v-for="opd in opds" :key="opd.id" :value="opd.id">{{ opd.name }}</option>
+          </select>
           <select v-model="localFilters.status" class="border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none transition text-slate-700">
             <option value="">Semua Status</option>
             <option value="draft">Draft</option>
@@ -62,6 +66,7 @@
               <tr>
                 <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide">Judul</th>
                 <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide hidden md:table-cell">Penulis</th>
+                <th v-if="opds?.length" class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide hidden lg:table-cell">OPD</th>
                 <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide hidden lg:table-cell">Kategori</th>
                 <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide">Status</th>
                 <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide">Tanggal</th>
@@ -77,6 +82,9 @@
                     <div class="font-medium text-slate-800">{{ article.author?.name ?? '-' }}</div>
                     <div class="text-slate-500">{{ article.author?.field || 'Umum' }}</div>
                   </div>
+                </td>
+                <td v-if="opds?.length" class="px-5 py-3.5 hidden lg:table-cell">
+                  <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{{ article.opd?.name ?? '-' }}</span>
                 </td>
                 <td class="px-5 py-3.5 hidden lg:table-cell">
                   <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{{ article.category?.name ?? 'Umum' }}</span>
@@ -119,9 +127,11 @@ const props = defineProps({
   articles: Object,
   stats: Object,
   filters: Object,
+  opds: { type: Array, default: () => [] },
 });
 
 const localFilters = reactive({
+  opd_id: props.filters?.opd_id ?? '',
   status: props.filters?.status ?? '',
   date_from: props.filters?.date_from ?? '',
   date_to: props.filters?.date_to ?? '',
@@ -132,6 +142,7 @@ function applyFilters() {
 }
 
 function resetFilters() {
+  localFilters.opd_id = '';
   localFilters.status = '';
   localFilters.date_from = '';
   localFilters.date_to = '';

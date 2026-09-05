@@ -20,7 +20,7 @@ class RekapExport implements FromCollection, WithHeadings, WithMapping, WithStyl
 
     public function collection()
     {
-        $query = Article::with(['author', 'category', 'editor']);
+        $query = Article::with(['author', 'category', 'editor', 'opd']);
 
         if (!empty($this->filters['status'])) {
             $query->where('status', $this->filters['status']);
@@ -34,13 +34,19 @@ class RekapExport implements FromCollection, WithHeadings, WithMapping, WithStyl
         if (!empty($this->filters['date_to'])) {
             $query->whereDate('created_at', '<=', $this->filters['date_to']);
         }
+        if (!empty($this->filters['author_id'])) {
+            $query->where('author_id', $this->filters['author_id']);
+        }
+        if (!empty($this->filters['opd_id'])) {
+            $query->where('opd_id', $this->filters['opd_id']);
+        }
 
         return $query->latest()->get();
     }
 
     public function headings(): array
     {
-        return ['#', 'Judul', 'Kategori', 'Penulis (Bidang)', 'Editor', 'Status', 'Platform', 'Tanggal Buat', 'Tanggal Publikasi'];
+        return ['#', 'Judul', 'OPD', 'Kategori', 'Penulis (Bidang)', 'Editor', 'Status', 'Platform', 'Tanggal Buat', 'Tanggal Publikasi'];
     }
 
     public function map($article): array
@@ -51,6 +57,7 @@ class RekapExport implements FromCollection, WithHeadings, WithMapping, WithStyl
         return [
             $article->id,
             $article->title,
+            $article->opd?->name ?? '-',
             $article->category?->name ?? '-',
             $authorField ? $authorName . ' (' . $authorField . ')' : $authorName,
             $article->editor?->name ?? '-',

@@ -11,6 +11,14 @@
         </span>
       </div>
 
+      <div class="flex items-center gap-3">
+        <label class="text-xs text-slate-500">Filter OPD:</label>
+        <select v-model="selectedOpd" @change="applyFilter" class="text-sm border border-slate-200 rounded-xl px-3 py-1.5 focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400">
+          <option value="">Semua OPD</option>
+          <option v-for="opd in opds" :key="opd.id" :value="opd.id">{{ opd.name }}</option>
+        </select>
+      </div>
+
       <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
         <div v-if="articles.data?.length">
           <table class="w-full text-sm">
@@ -18,6 +26,7 @@
               <tr>
                 <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide">Artikel</th>
                 <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide hidden md:table-cell">Penulis</th>
+                <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide hidden lg:table-cell">OPD</th>
                 <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide hidden lg:table-cell">Kategori</th>
                 <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide">Status</th>
                 <th class="text-left px-5 py-3.5 text-xs font-semibold text-slate-400 uppercase tracking-wide">Aksi</th>
@@ -34,6 +43,9 @@
                     <div class="font-medium text-slate-800">{{ article.author?.name ?? '-' }}</div>
                     <div class="text-slate-500">{{ article.author?.field || 'Umum' }}</div>
                   </div>
+                </td>
+                <td class="px-5 py-3.5 hidden lg:table-cell">
+                  <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{{ article.opd?.name ?? '-' }}</span>
                 </td>
                 <td class="px-5 py-3.5 hidden lg:table-cell">
                   <span class="text-xs bg-slate-100 text-slate-500 px-2 py-0.5 rounded-full">{{ article.category?.name ?? 'Umum' }}</span>
@@ -72,9 +84,23 @@
 
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, router } from '@inertiajs/vue3';
+import { ref } from 'vue';
 
-defineProps({ articles: Object });
+const props = defineProps({
+  articles: Object,
+  opds: { type: Array, default: () => [] },
+  filters: { type: Object, default: () => ({}) },
+});
+
+const selectedOpd = ref(props.filters?.opd_id ?? '');
+
+function applyFilter() {
+  router.get('/editor/inbox', selectedOpd.value ? { opd_id: selectedOpd.value } : {}, {
+    preserveState: true,
+    replace: true,
+  });
+}
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });

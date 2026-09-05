@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exports\RekapExport;
 use App\Models\Article;
+use App\Models\Opd;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -13,7 +14,9 @@ class RekapController extends Controller
 {
     public function index(Request $request)
     {
-        $query = Article::with(['author', 'category', 'editor']);
+        $user = auth()->user();
+        $query = Article::with(['author', 'category', 'editor', 'opd']);
+        $this->scopeToUser($query, $user, $request);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -33,30 +36,43 @@ class RekapController extends Controller
 
         $articles = $query->latest()->paginate(20)->withQueryString();
 
+        $statsQuery = Article::query();
+        $this->scopeToUser($statsQuery, $user, $request);
         $stats = [
-            'total' => Article::count(),
-            'draft' => Article::where('status', 'draft')->count(),
-            'submitted' => Article::where('status', 'submitted')->count(),
-            'returned' => Article::where('status', 'returned')->count(),
-            'approved' => Article::where('status', 'approved')->count(),
-            'published' => Article::where('status', 'published')->count(),
+            'total' => (clone $statsQuery)->count(),
+            'draft' => (clone $statsQuery)->where('status', 'draft')->count(),
+            'submitted' => (clone $statsQuery)->where('status', 'submitted')->count(),
+            'returned' => (clone $statsQuery)->where('status', 'returned')->count(),
+            'approved' => (clone $statsQuery)->where('status', 'approved')->count(),
+            'published' => (clone $statsQuery)->where('status', 'published')->count(),
         ];
 
         return Inertia::render('Rekap/Index', [
             'articles' => $articles,
             'stats' => $stats,
-            'filters' => $request->only(['status', 'category_id', 'author_id', 'date_from', 'date_to']),
+            'opds' => $user->hasCrossOpdAccess() ? Opd::orderBy('name')->get() : [],
+            'filters' => $request->only(['status', 'category_id', 'author_id', 'date_from', 'date_to', 'opd_id']),
         ]);
     }
 
     public function exportExcel(Request $request)
     {
-        return Excel::download(new RekapExport($request->all()), 'rekap-ppid-' . now()->format('Y-m-d') . '.xlsx');
+        $filters = $request->all();
+        $user = auth()->user();
+        if (!$user->hasCrossOpdAccess()) {
+            $filters['author_id'] = $user->id;
+        } elseif ($request->filled('opd_id')) {
+            $filters['opd_id'] = $request->opd_id;
+        }
+
+        return Excel::download(new RekapExport($filters), 'rekap-ppid-' . now()->format('Y-m-d') . '.xlsx');
     }
 
     public function exportPdf(Request $request)
     {
-        $query = Article::with(['author', 'category', 'editor']);
+        $user = auth()->user();
+        $query = Article::with(['author', 'category', 'editor', 'opd']);
+        $this->scopeToUser($query, $user, $request);
 
         if ($request->filled('status')) {
             $query->where('status', $request->status);
@@ -73,4 +89,22 @@ class RekapController extends Controller
 
         return $pdf->download('rekap-ppid-' . now()->format('Y-m-d') . '.pdf');
     }
+
+    /**
+     * Kontributor hanya melihat artikel miliknya sendiri; editor & leader lintas OPD
+     * (dengan filter opd_id opsional).
+     */
+    private function scopeToUser($query, $user, Request $request): void
+    {
+        if (!$user->hasCrossOpdAccess()) {
+            $query->where('author_id', $user->id);
+
+            return;
+        }
+
+        if ($request->filled('opd_id')) {
+            $query->where('opd_id', $request->opd_id);
+        }
+    }
 }
+

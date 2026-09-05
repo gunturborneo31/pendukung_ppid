@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Str;
 
 class Article extends Model
@@ -14,7 +15,7 @@ class Article extends Model
         'title', 'slug', 'body_web', 'excerpt', 'thumbnail',
         'caption_ig', 'hashtags_ig', 'status', 'target_platform',
         'author_id', 'editor_id', 'editor_notes', 'published_at',
-        'preview_token', 'category_id',
+        'preview_token', 'category_id', 'opd_id',
     ];
 
     protected $casts = [
@@ -33,7 +34,15 @@ class Article extends Model
             if (empty($article->slug)) {
                 $article->slug = Str::slug($article->title) . '-' . Str::random(6);
             }
+            // Artikel selalu terikat ke OPD milik penulisnya (denormalisasi untuk performa query).
+            if (empty($article->opd_id) && $article->author_id) {
+                $article->opd_id = User::find($article->author_id)?->opd_id;
+            }
         });
+
+        // Invalidasi cache ringkasan dashboard OPD setiap ada perubahan status artikel.
+        static::saved(fn () => Cache::forget('dashboard.opd_summary'));
+        static::deleted(fn () => Cache::forget('dashboard.opd_summary'));
     }
 
     public function author()
@@ -49,6 +58,23 @@ class Article extends Model
     public function category()
     {
         return $this->belongsTo(Category::class);
+    }
+
+    public function opd()
+    {
+        return $this->belongsTo(Opd::class);
+    }
+
+    /**
+     * Batasi query ke OPD milik user, kecuali user punya akses lintas OPD.
+     */
+    public function scopeVisibleTo($query, User $user)
+    {
+        if ($user->hasCrossOpdAccess()) {
+            return $query;
+        }
+
+        return $query->where('opd_id', $user->opd_id);
     }
 
     public function seo()

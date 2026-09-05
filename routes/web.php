@@ -1,13 +1,17 @@
 <?php
 
+use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\ArticleController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EditorController;
+use App\Http\Controllers\FcmTokenController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\OpdController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RekapController;
 use App\Http\Controllers\SitemapController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 // Redirect root to dashboard or login
@@ -52,12 +56,12 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/editor/articles/{article}/return', [EditorController::class, 'returnArticle'])->name('editor.return');
 
         // Manajemen kontributor
-        Route::get('/editor/contributors', [\App\Http\Controllers\UserController::class, 'index'])->name('editor.contributors');
-        Route::get('/editor/contributors/create', [\App\Http\Controllers\UserController::class, 'create'])->name('editor.contributors.create');
-        Route::post('/editor/contributors', [\App\Http\Controllers\UserController::class, 'store'])->name('editor.contributors.store');
-        Route::get('/editor/contributors/{user}/edit', [\App\Http\Controllers\UserController::class, 'edit'])->name('editor.contributors.edit');
-        Route::put('/editor/contributors/{user}', [\App\Http\Controllers\UserController::class, 'update'])->name('editor.contributors.update');
-        Route::delete('/editor/contributors/{user}', [\App\Http\Controllers\UserController::class, 'destroy'])->name('editor.contributors.destroy');
+        Route::get('/editor/contributors', [UserController::class, 'index'])->name('editor.contributors');
+        Route::get('/editor/contributors/create', [UserController::class, 'create'])->name('editor.contributors.create');
+        Route::post('/editor/contributors', [UserController::class, 'store'])->name('editor.contributors.store');
+        Route::get('/editor/contributors/{user}/edit', [UserController::class, 'edit'])->name('editor.contributors.edit');
+        Route::put('/editor/contributors/{user}', [UserController::class, 'update'])->name('editor.contributors.update');
+        Route::delete('/editor/contributors/{user}', [UserController::class, 'destroy'])->name('editor.contributors.destroy');
     });
 
     // Rekap (editor + leader)
@@ -68,8 +72,41 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/rekap/export/pdf', [RekapController::class, 'exportPdf'])->name('rekap.pdf');
     });
 
+    // Dashboard status seluruh OPD (editor & leader, akses lintas OPD)
+    Route::middleware(['role:editor,leader'])->group(function () {
+        Route::get('/dashboard/opd', [DashboardController::class, 'opdOverview'])->name('dashboard.opd');
+    });
+
+    // Superadmin: kelola daftar OPD serta akun editor & leader
+    Route::middleware(['role:superadmin'])->prefix('superadmin')->name('superadmin.')->group(function () {
+        Route::get('/opds', [OpdController::class, 'index'])->name('opds.index');
+        Route::get('/opds/create', [OpdController::class, 'create'])->name('opds.create');
+        Route::post('/opds', [OpdController::class, 'store'])->name('opds.store');
+        Route::get('/opds/{opd}/edit', [OpdController::class, 'edit'])->name('opds.edit');
+        Route::put('/opds/{opd}', [OpdController::class, 'update'])->name('opds.update');
+        Route::delete('/opds/{opd}', [OpdController::class, 'destroy'])->name('opds.destroy');
+
+        Route::get('/users', [AdminUserController::class, 'index'])->name('users.index');
+        Route::get('/users/create', [AdminUserController::class, 'create'])->name('users.create');
+        Route::post('/users', [AdminUserController::class, 'store'])->name('users.store');
+        Route::get('/users/{user}/edit', [AdminUserController::class, 'edit'])->name('users.edit');
+        Route::put('/users/{user}', [AdminUserController::class, 'update'])->name('users.update');
+        Route::delete('/users/{user}', [AdminUserController::class, 'destroy'])->name('users.destroy');
+
+        // Superadmin juga dapat mengelola akun kontributor.
+        Route::get('/contributors', [UserController::class, 'index'])->name('contributors');
+        Route::get('/contributors/create', [UserController::class, 'create'])->name('contributors.create');
+        Route::post('/contributors', [UserController::class, 'store'])->name('contributors.store');
+        Route::get('/contributors/{user}/edit', [UserController::class, 'edit'])->name('contributors.edit');
+        Route::put('/contributors/{user}', [UserController::class, 'update'])->name('contributors.update');
+        Route::delete('/contributors/{user}', [UserController::class, 'destroy'])->name('contributors.destroy');
+    });
+
     // Media upload
     Route::post('/media', [MediaController::class, 'store'])->name('media.store');
     Route::delete('/media/{media}', [MediaController::class, 'destroy'])->name('media.destroy');
-});
 
+    // FCM token (push notification) - dipanggil frontend setelah Firebase Messaging aktif
+    Route::post('/fcm-token', [FcmTokenController::class, 'store'])->name('fcm-token.store');
+    Route::delete('/fcm-token', [FcmTokenController::class, 'destroy'])->name('fcm-token.destroy');
+});

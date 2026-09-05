@@ -33,6 +33,9 @@
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
             </span>
             Artikel Saya
+            <span v-if="revisionNotesCount > 0" class="ml-auto bg-amber-100 text-amber-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+              {{ formatBadgeCount(revisionNotesCount) }}
+            </span>
           </Link>
           <Link href="/news/approved" :class="navLinkClasses($page.url.startsWith('/news/approved'))">
             <span :class="navIconClasses($page.url.startsWith('/news/approved'))">
@@ -56,6 +59,9 @@
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
             </span>
             Inbox Review
+            <span v-if="pendingVerificationCount > 0" class="ml-auto bg-red-100 text-red-700 text-[10px] font-semibold px-2 py-0.5 rounded-full">
+              {{ formatBadgeCount(pendingVerificationCount) }}
+            </span>
           </Link>
           <Link href="/editor/contributors" :class="navLinkClasses($page.url.startsWith('/editor/contributors'))">
             <span :class="navIconClasses($page.url.startsWith('/editor/contributors'))">
@@ -68,6 +74,12 @@
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </span>
             Berita Disetujui Editor
+          </Link>
+          <Link href="/dashboard/opd" :class="navLinkClasses($page.url.startsWith('/dashboard/opd'))">
+            <span :class="navIconClasses($page.url.startsWith('/dashboard/opd'))">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/></svg>
+            </span>
+            Status Seluruh OPD
           </Link>
           <!-- <Link href="/editor/contributors/create" :class="navLinkClasses($page.url.startsWith('/editor/contributors/create'))">
             <span :class="navIconClasses($page.url.startsWith('/editor/contributors/create'))">
@@ -98,24 +110,49 @@
             </span>
             Rekap Artikel
           </Link>
+          <Link href="/dashboard/opd" :class="navLinkClasses($page.url.startsWith('/dashboard/opd'))">
+            <span :class="navIconClasses($page.url.startsWith('/dashboard/opd'))">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M9 17V9m4 8V5m4 12v-6"/></svg>
+            </span>
+            Status Seluruh OPD
+          </Link>
+        </template>
+
+        <!-- Superadmin -->
+        <template v-if="user?.role === 'superadmin'">
+          <p class="text-[10px] font-semibold text-slate-400 uppercase px-3 pt-4 mb-2 tracking-wider">Administrasi</p>
+          <Link href="/superadmin/opds" :class="navLinkClasses($page.url.startsWith('/superadmin/opds'))">
+            <span :class="navIconClasses($page.url.startsWith('/superadmin/opds'))">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2M5 21H3m4-14h.01M11 7h.01M15 7h.01M7 11h.01M11 11h.01M15 11h.01M7 15h.01M11 15h.01M15 15h.01"/></svg>
+            </span>
+            Kelola OPD
+          </Link>
+          <Link href="/superadmin/users" :class="navLinkClasses($page.url.startsWith('/superadmin/users'))">
+            <span :class="navIconClasses($page.url.startsWith('/superadmin/users'))">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </span>
+            Kelola Editor &amp; Leader
+          </Link>
+          <Link href="/superadmin/contributors" :class="navLinkClasses($page.url.startsWith('/superadmin/contributors'))">
+            <span :class="navIconClasses($page.url.startsWith('/superadmin/contributors'))">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            </span>
+            Kelola Kontributor
+          </Link>
         </template>
       </nav>
 
       <!-- User info -->
       <div class="border-t border-slate-100 px-4 py-4">
-          <Link href="/news/approved" :class="navLinkClasses($page.url.startsWith('/news/approved'))">
-            <span :class="navIconClasses($page.url.startsWith('/news/approved'))">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            </span>
-            Berita Disetujui
-          </Link>
         <div class="flex items-center gap-3">
           <div class="w-8 h-8 rounded-full bg-indigo-100 flex items-center justify-center text-indigo-700 text-xs font-bold flex-shrink-0">
             {{ user?.name?.charAt(0)?.toUpperCase() }}
           </div>
           <div class="flex-1 min-w-0">
             <p class="text-xs font-semibold text-slate-800 truncate">{{ user?.name }}</p>
-            <p class="text-[10px] text-slate-400 capitalize">{{ user?.role }}</p>
+            <p class="text-[10px] text-slate-400 capitalize">
+              {{ user?.role }}<span v-if="user?.opd"> &middot; {{ user.opd.name }}</span>
+            </p>
           </div>
           <Link href="/logout" method="post" as="button" title="Keluar"
             class="text-slate-400 hover:text-red-500 transition p-1 rounded">
@@ -166,7 +203,10 @@ import { computed, ref } from 'vue';
 
 const page = usePage();
 const user = computed(() => page.props.auth?.user);
+const notifications = computed(() => page.props.notifications || {});
 const sidebarOpen = ref(false);
+const pendingVerificationCount = computed(() => Number(notifications.value.pending_verification || 0));
+const revisionNotesCount = computed(() => Number(notifications.value.revision_notes || 0));
 
 const flash = computed(() => page.props.flash?.message || page.props.flash?.error || null);
 const flashClass = computed(() => page.props.flash?.error ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-700');
@@ -181,10 +221,17 @@ function navLinkClasses(active) {
 function navIconClasses(active) {
   return active ? 'text-indigo-600' : 'text-slate-400';
 }
+
+function formatBadgeCount(value) {
+  if (value > 99) {
+    return '99+';
+  }
+
+  return value;
+}
 </script>
 
 <style scoped>
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
-

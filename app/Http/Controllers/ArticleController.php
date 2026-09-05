@@ -3,20 +3,27 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ArticleRequest;
+use App\Jobs\AnalyzeArticleSeoJob;
 use App\Models\Article;
 use App\Models\ActivityLog;
 use App\Models\Category;
 use App\Models\Media;
+use App\Models\User;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Inertia\Inertia;
 
 class ArticleController extends Controller
 {
+    public function __construct(protected FirebaseNotificationService $notifier)
+    {
+    }
+
     public function index()
     {
         $articles = Article::where('author_id', auth()->id())
-            ->with(['author', 'category', 'editor'])
+            ->with(['author', 'category', 'editor', 'opd'])
             ->latest()
             ->paginate(15);
 
@@ -95,29 +102,9 @@ class ArticleController extends Controller
         }
 
         // --- AI SEO ANALYSIS INTEGRATION ---
-        try {
-            $seoApiUrl = 'https://public-seo-ai.example.com/analyze'; // Replace with actual public SEO AI endpoint
-            $response = \Http::post($seoApiUrl, [
-                'title' => $article->title,
-                'body' => is_array($article->body_web) ? implode(' ', $article->body_web) : $article->body_web,
-            ]);
-            if ($response->successful()) {
-                $analysis = $response->json();
-                $article->seo()->updateOrCreate([], [
-                    'seo_title' => $analysis['seo_title'] ?? $article->title,
-                    'seo_description' => $analysis['seo_description'] ?? null,
-                    'seo_keywords' => $analysis['seo_keywords'] ?? null,
-                    'og_title' => $analysis['og_title'] ?? null,
-                    'og_description' => $analysis['og_description'] ?? null,
-                    'og_image' => $analysis['og_image'] ?? null,
-                    'canonical_url' => $analysis['canonical_url'] ?? null,
-                    'robots_index' => $analysis['robots_index'] ?? true,
-                    'robots_follow' => $analysis['robots_follow'] ?? true,
-                ]);
-            }
-        } catch (\Exception $e) {
-            // Optionally log the error or ignore
-        }
+        // Dipindahkan ke job antrean supaya panggilan HTTP eksternal tidak memblokir
+        // request penyimpanan artikel oleh kontributor.
+        AnalyzeArticleSeoJob::dispatch($article->id);
         // --- END AI SEO ANALYSIS ---
 
         ActivityLog::create([
@@ -243,6 +230,14 @@ class ArticleController extends Controller
             'action' => 'submitted',
             'notes' => 'Artikel disubmit untuk review',
         ]);
+
+        // Beri tahu semua editor bahwa ada artikel baru yang perlu diverifikasi.
+        $this->notifier->sendToUsers(
+            User::where('role', 'editor')->get(),
+            'Artikel Baru Perlu Diverifikasi',
+            "{$article->title} dikirim oleh {$article->author->name} dan menunggu review.",
+            ['type' => 'verification', 'article_id' => (string) $article->id]
+        );
 
         return redirect()->route('articles.index')
             ->with('message', 'Artikel berhasil disubmit.');
