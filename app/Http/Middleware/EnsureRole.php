@@ -11,7 +11,7 @@ class EnsureRole
     public function handle(Request $request, Closure $next, string ...$roles): Response
     {
         if (!$request->user()) {
-            return redirect()->route('login');
+            return redirect('/login');
         }
 
         $userRole = $request->user()->role;

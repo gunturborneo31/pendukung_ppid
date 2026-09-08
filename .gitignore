@@ -18,6 +18,9 @@
 /public/fonts-manifest.dev.json
 /public/hot
 /public/storage
+/public/sw.js
+/public/workbox-*.js
+/public/manifest.webmanifest
 /storage/*.key
 /storage/pail
 /vendor

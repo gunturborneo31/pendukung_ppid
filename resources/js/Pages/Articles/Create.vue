@@ -491,45 +491,46 @@ function moveMediaDown(idx) {
 async function save(status) {
   form.status = status;
 
-  const extractTagText = (tag) => {
-    if (!tag) return '';
-    if (typeof tag === 'object') {
-      const candidate = tag.text ?? tag.label ?? '';
-      return typeof candidate === 'string' ? candidate.trim() : '';
-    }
+  const seoKeywords = Array.isArray(form.seo.seo_keywords)
+    ? form.seo.seo_keywords
+        .map((tag) => {
+          if (!tag) return '';
+          if (typeof tag === 'object') {
+            const candidate = tag.text ?? tag.label ?? '';
+            return typeof candidate === 'string' ? candidate.trim() : '';
+          }
 
-    const value = String(tag).trim();
-    if (!value) return '';
+          const value = String(tag).trim();
+          if (!value) return '';
 
-    if ((value.startsWith('{') && value.endsWith('}')) || (value.startsWith('[') && value.endsWith(']'))) {
-      try {
-        const parsed = JSON.parse(value);
-        if (parsed && typeof parsed === 'object' && typeof parsed.text === 'string') {
-          return parsed.text.trim();
-        }
-      } catch (_) {
-        // Keep raw string when not valid JSON.
-      }
-    }
+          if ((value.startsWith('{') && value.endsWith('}')) || (value.startsWith('[') && value.endsWith(']'))) {
+            try {
+              const parsed = JSON.parse(value);
+              if (parsed && typeof parsed === 'object' && typeof parsed.text === 'string') {
+                return parsed.text.trim();
+              }
+            } catch (_) {
+              // Keep raw string when not valid JSON.
+            }
+          }
 
-    return value;
-  };
-  
-  // Convert seo_keywords array to comma-separated string
-  if (Array.isArray(form.seo.seo_keywords) && form.seo.seo_keywords.length > 0) {
-    form.seo.seo_keywords = form.seo.seo_keywords
-      .map((tag) => extractTagText(tag))
-      .filter(Boolean)
-      .join(',');
-  } else {
-    form.seo.seo_keywords = '';
-  }
+          return value;
+        })
+        .filter(Boolean)
+        .join(',')
+    : '';
 
   form.supporting_files = supportingFiles.value;
   form.supporting_descriptions = fileDescriptions.value;
   
   // Submit artikel utama
-  await form.post('/articles', {
+  await form.transform((data) => ({
+    ...data,
+    seo: {
+      ...data.seo,
+      seo_keywords: seoKeywords,
+    },
+  })).post('/articles', {
     onSuccess: () => {
       supportingFiles.value = [];
       fileDescriptions.value = [];

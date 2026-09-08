@@ -639,21 +639,25 @@ function moveMediaDown(idx) {
 async function save(status) {
   form.status = status;
 
-  if (Array.isArray(form.seo.seo_keywords) && form.seo.seo_keywords.length > 0) {
-    form.seo.seo_keywords = form.seo.seo_keywords
-      .map((tag) => extractTagText(tag))
-      .filter(Boolean)
-      .join(',');
-  } else {
-    form.seo.seo_keywords = '';
-  }
+  const seoKeywords = Array.isArray(form.seo.seo_keywords)
+    ? form.seo.seo_keywords
+        .map((tag) => extractTagText(tag))
+        .filter(Boolean)
+        .join(',')
+    : '';
 
   form.supporting_files = supportingFiles.value;
   form.supporting_descriptions = fileDescriptions.value;
   form.ig_media_delete_ids = deletedInstagramMediaIds.value;
   form.supporting_file_delete_ids = deletedSupportingFileIds.value;
 
-  await form.put(props.updateUrl || `/articles/${props.article.id}`);
+  await form.transform((data) => ({
+    ...data,
+    seo: {
+      ...data.seo,
+      seo_keywords: seoKeywords,
+    },
+  })).put(props.updateUrl || `/articles/${props.article.id}`);
 }
 
 function isImage(file) {

@@ -110,3 +110,18 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/fcm-token', [FcmTokenController::class, 'store'])->name('fcm-token.store');
     Route::delete('/fcm-token', [FcmTokenController::class, 'destroy'])->name('fcm-token.destroy');
 });
+
+Route::get('/firebase-service-worker.js', function () {
+    $firebaseConfig = [
+        'apiKey' => env('VITE_FIREBASE_API_KEY', env('FIREBASE_API_KEY', '')),
+        'authDomain' => env('VITE_FIREBASE_AUTH_DOMAIN', env('FIREBASE_AUTH_DOMAIN', '')),
+        'projectId' => env('VITE_FIREBASE_PROJECT_ID', env('FIREBASE_PROJECT_ID', '')),
+        'storageBucket' => env('VITE_FIREBASE_STORAGE_BUCKET', env('FIREBASE_STORAGE_BUCKET', '')),
+        'messagingSenderId' => env('VITE_FIREBASE_MESSAGING_SENDER_ID', env('FIREBASE_MESSAGING_SENDER_ID', '')),
+        'appId' => env('VITE_FIREBASE_APP_ID', env('FIREBASE_APP_ID', '')),
+    ];
+
+    return response()->view('firebase-messaging-sw', ['firebaseConfig' => $firebaseConfig])
+        ->header('Content-Type', 'application/javascript')
+        ->header('Cache-Control', 'no-store, no-cache, must-revalidate, max-age=0');
+})->name('firebase.service-worker');

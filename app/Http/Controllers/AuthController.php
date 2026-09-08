@@ -11,7 +11,7 @@ class AuthController extends Controller
     public function showLogin()
     {
         if (Auth::check()) {
-            return redirect()->route('dashboard');
+            return redirect('/dashboard');
         }
         return Inertia::render('Auth/Login');
     }
@@ -25,7 +25,8 @@ class AuthController extends Controller
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
-            return redirect()->intended(route('dashboard'));
+            $request->session()->flash('request_push_permission', true);
+            return redirect()->intended('/dashboard');
         }
 
         return back()->withErrors([
@@ -38,6 +39,6 @@ class AuthController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
-        return redirect()->route('login');
+        return redirect('/login');
     }
 }

@@ -5,9 +5,8 @@
       :tags="tags"
       @on-tags-changed="updateTags"
       placeholder="New tag"
-      :add-on-key="['Enter', ',']"
-      :allow-edit-tags="false"
-      :allow-duplicate="false"
+      :add-tag-on-keys="['Enter', ',']"
+      :allow-duplicates="false"
       class="mb-1"
     />
     <span class="text-xs text-gray-500">Tekan enter setelah mengisi tag</span>
@@ -73,6 +72,9 @@ function updateTags(newTags) {
 
 watch(() => props.modelValue, (val) => {
   tags.value = normalizeTags(val);
+  if (JSON.stringify(val) !== JSON.stringify(tags.value)) {
+    emit('update:modelValue', tags.value);
+  }
 });
 </script>
 
