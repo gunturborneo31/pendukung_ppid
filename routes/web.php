@@ -7,6 +7,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EditorController;
 use App\Http\Controllers\FcmTokenController;
 use App\Http\Controllers\MediaController;
+use App\Http\Controllers\NotificationSettingsController;
 use App\Http\Controllers\OpdController;
 use App\Http\Controllers\PreviewController;
 use App\Http\Controllers\RekapController;
@@ -100,6 +101,10 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/contributors/{user}/edit', [UserController::class, 'edit'])->name('contributors.edit');
         Route::put('/contributors/{user}', [UserController::class, 'update'])->name('contributors.update');
         Route::delete('/contributors/{user}', [UserController::class, 'destroy'])->name('contributors.destroy');
+
+        // Pengaturan > uji coba notifikasi push antar user.
+        Route::get('/settings/notifications', [NotificationSettingsController::class, 'index'])->name('settings.notifications');
+        Route::post('/settings/notifications/{user}/test', [NotificationSettingsController::class, 'sendTest'])->name('settings.notifications.test');
     });
 
     // Media upload
