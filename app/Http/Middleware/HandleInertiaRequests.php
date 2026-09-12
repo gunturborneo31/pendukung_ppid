@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use App\Models\Article;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
@@ -25,14 +26,22 @@ class HandleInertiaRequests extends Middleware
 
         if ($user) {
             if ($user->role === 'editor') {
-                $notifications['pending_verification'] = Article::where('status', 'submitted')->count();
+                $notifications['pending_verification'] = Cache::remember(
+                    'notifications.pending_verification',
+                    now()->addSeconds(20),
+                    fn () => Article::where('status', 'submitted')->count()
+                );
             }
 
             if ($user->role === 'contributor') {
-                $notifications['revision_notes'] = Article::where('author_id', $user->id)
-                    ->where('status', 'returned')
-                    ->whereNotNull('editor_notes')
-                    ->count();
+                $notifications['revision_notes'] = Cache::remember(
+                    "notifications.revision_notes.{$user->id}",
+                    now()->addSeconds(20),
+                    fn () => Article::where('author_id', $user->id)
+                        ->where('status', 'returned')
+                        ->whereNotNull('editor_notes')
+                        ->count()
+                );
             }
         }
 

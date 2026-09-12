@@ -1,16 +1,16 @@
 <template>
   <AppLayout>
     <div class="space-y-6">
-      <div class="flex items-center justify-between">
-        <div>
-          <h1 class="text-xl font-bold text-slate-900">Artikel Saya</h1>
-          <p class="text-slate-400 text-xs mt-0.5">Kelola semua artikel yang kamu buat</p>
-        </div>
+      <div class="space-y-3">
         <Link href="/articles/create"
           class="inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:bg-indigo-700 transition shadow-sm">
           <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           Buat Artikel
         </Link>
+        <div>
+          <h1 class="text-xl font-bold text-slate-900">Artikel Saya</h1>
+          <p class="text-slate-400 text-xs mt-0.5">Kelola semua artikel yang kamu buat</p>
+        </div>
       </div>
 
       <!-- Articles Table -->
@@ -31,6 +31,13 @@
               <tr v-for="article in articles.data" :key="article.id" class="hover:bg-slate-50 transition">
                 <td class="px-5 py-3.5">
                   <div class="font-medium text-slate-800 truncate max-w-xs">{{ article.title }}</div>
+                  <div class="mt-1">
+                    <span
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
+                      :class="hasUploadProofs(article.upload_proofs) ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-500'">
+                      {{ hasUploadProofs(article.upload_proofs) ? 'Uploading diisi' : 'Uploading kosong' }}
+                    </span>
+                  </div>
                   <div v-if="article.editor_notes && article.status === 'returned'"
                     class="flex items-center gap-1 text-xs text-red-500 mt-0.5 truncate max-w-xs">
                     <svg class="w-3 h-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
@@ -58,7 +65,7 @@
                   <StatusBadge :status="article.status" />
                 </td>
                 <td class="px-5 py-3.5">
-                  <div class="flex items-center gap-2">
+                  <div class="flex flex-wrap items-center gap-2 max-w-[220px]">
                     <Link v-if="['draft', 'returned'].includes(article.status)"
                       :href="`/articles/${article.id}/edit`"
                       class="text-xs text-indigo-600 hover:text-indigo-800 font-medium">Edit</Link>
@@ -72,6 +79,10 @@
                       class="text-xs bg-emerald-50 text-emerald-700 px-2.5 py-1 rounded-lg hover:bg-emerald-100 transition font-medium">
                       Submit
                     </button>
+                    <Link :href="`/upload-proofs/articles/${article.id}`"
+                      class="text-xs bg-blue-50 text-blue-700 px-2.5 py-1 rounded-lg hover:bg-blue-100 transition font-medium">
+                      Bukti Tayang
+                    </Link>
                     <a :href="`/preview/${article.preview_token}`" target="_blank"
                       class="text-xs text-slate-400 hover:text-slate-600">Preview</a>
                   </div>
@@ -118,6 +129,21 @@ defineProps({ articles: Object });
 
 function formatDate(date) {
   return new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function hasUploadProofs(value) {
+  if (!value) return false;
+  const source = typeof value === 'string' ? (() => {
+    try {
+      return JSON.parse(value);
+    } catch (_) {
+      return null;
+    }
+  })() : value;
+
+  if (!source || typeof source !== 'object') return false;
+
+  return Object.values(source).some((item) => typeof item === 'string' && item.trim());
 }
 
 function submitArticle(article) {

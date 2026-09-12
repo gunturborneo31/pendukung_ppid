@@ -6,7 +6,7 @@
         <Link href="/articles" class="text-gray-400 hover:text-gray-600">←</Link>
         <div>
           <h1 class="text-2xl font-bold text-gray-900">Edit Artikel</h1>
-          <p class="text-gray-500 text-sm">Isi informasi dasar, konten, dan file pendukung. SEO & tab lainnya opsional</p>
+          <p class="text-gray-500 text-sm">Isi informasi dasar, konten, bukti tayang upload, dan file pendukung. SEO & tab lainnya opsional</p>
         </div>
       </div>
 
@@ -88,7 +88,7 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
               <select v-model="form.category_id"
@@ -96,6 +96,15 @@
                 <option value="">Pilih kategori...</option>
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
               </select>
+            </div>
+            <div v-if="props.opds.length">
+              <label class="block text-sm font-medium text-gray-700 mb-1">OPD</label>
+              <select v-model="form.opd_id"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="" disabled>Pilih OPD...</option>
+                <option v-for="opd in props.opds" :key="opd.id" :value="opd.id">{{ opd.name }}</option>
+              </select>
+              <p v-if="form.errors.opd_id" class="text-red-500 text-xs mt-1">{{ form.errors.opd_id }}</p>
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Artikel *</label>
@@ -231,6 +240,24 @@
                 </div>
               </div>
             </template>
+
+            <template #uploading>
+              <div class="space-y-4">
+                <div>
+                  <h3 class="text-sm font-semibold text-gray-900">Bukti Tayang Uploading</h3>
+                  <p class="text-xs text-gray-500 mt-1">Isi tautan bukti tayang untuk platform yang dipakai setelah artikel diunggah.</p>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div v-for="platform in uploadProofPlatforms" :key="platform.key">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">{{ platform.label }}</label>
+                    <input v-model="form.upload_proofs[platform.key]" :type="platform.type"
+                      class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      :placeholder="platform.placeholder" />
+                  </div>
+                </div>
+              </div>
+            </template>
+
           </ArticleFormTabs>
         </div>
 
@@ -347,9 +374,52 @@ import IGPreviewCard from '@/Components/IGPreviewCard.vue';
 import { Link, useForm } from '@inertiajs/vue3';
 import TagsInput from '@/Components/TagsInput.vue';
 
+const uploadProofPlatforms = [
+  { key: 'instagram', label: 'Instagram', type: 'url', placeholder: 'Tempel tautan bukti tayang Instagram' },
+  { key: 'facebook', label: 'Facebook', type: 'url', placeholder: 'Tempel tautan bukti tayang Facebook' },
+  { key: 'youtube', label: 'YouTube', type: 'url', placeholder: 'Tempel tautan bukti tayang YouTube' },
+  { key: 'x', label: 'X', type: 'url', placeholder: 'Tempel tautan bukti tayang X' },
+  { key: 'tiktok', label: 'TikTok', type: 'url', placeholder: 'Tempel tautan bukti tayang TikTok' },
+  { key: 'website', label: 'Website', type: 'url', placeholder: 'Tempel tautan bukti tayang Website' },
+];
+
+function createEmptyUploadProofs() {
+  return uploadProofPlatforms.reduce((acc, platform) => {
+    acc[platform.key] = '';
+    return acc;
+  }, {});
+}
+
+function normalizeUploadProofs(value) {
+  const proofs = createEmptyUploadProofs();
+
+  if (!value) {
+    return proofs;
+  }
+
+  let source = value;
+  if (typeof value === 'string') {
+    try {
+      source = JSON.parse(value);
+    } catch (_) {
+      return proofs;
+    }
+  }
+
+  if (source && typeof source === 'object') {
+    uploadProofPlatforms.forEach((platform) => {
+      const raw = source[platform.key];
+      proofs[platform.key] = typeof raw === 'string' ? raw : raw ? String(raw) : '';
+    });
+  }
+
+  return proofs;
+}
+
 const props = defineProps({
   article: Object,
   categories: Array,
+  opds: { type: Array, default: () => [] },
   isEditor: { type: Boolean, default: false },
   updateUrl: { type: String, default: '' },
 });
@@ -439,6 +509,7 @@ const form = useForm({
   hashtags_ig: props.article.hashtags_ig ?? '',
   status: props.article.status ?? 'draft',
   category_id: props.article.category_id ?? '',
+  opd_id: props.article.opd_id ?? (props.opds.length === 1 ? props.opds[0].id : ''),
   published_at: (props.article.published_at || props.article.created_at || '').toString().slice(0, 10),
   ig_type: props.article.ig_type ?? 'feed',
   ig_media: [],
@@ -446,6 +517,7 @@ const form = useForm({
   supporting_files: [],
   supporting_descriptions: [],
   target_platform: props.article.target_platform ?? 'web',
+  upload_proofs: normalizeUploadProofs(props.article.upload_proofs),
   excerpt: props.article.excerpt ?? '',
   seo: {
     seo_title: props.article.seo?.seo_title ?? '',

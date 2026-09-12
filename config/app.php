@@ -13,7 +13,7 @@ return [
     |
     */
 
-    'name' => env('APP_NAME', 'Pendukung PPID Bappelitbangda Mahulu'),
+    'name' => env('APP_NAME', 'Pendukung PPID '),
 
     /*
     |--------------------------------------------------------------------------

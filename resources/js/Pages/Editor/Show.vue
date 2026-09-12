@@ -27,6 +27,10 @@
           class="text-xs border border-slate-200 text-slate-600 px-3 py-1.5 rounded-lg hover:bg-slate-50 transition">
           ↗ Preview
         </a>
+        <Link :href="`/upload-proofs/articles/${article.id}`"
+          class="text-xs border border-blue-200 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition">
+          Bukti Tayang
+        </Link>
         <Link :href="`/editor/articles/${article.id}/edit-full`"
           class="text-xs border border-indigo-200 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-50 transition">
           Edit Lengkap
@@ -99,6 +103,19 @@
                         </span>
                       </div>
                       <p v-else class="text-slate-500">-</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="mt-4 rounded-2xl border border-slate-200 bg-white p-5 md:p-6">
+                  <h2 class="text-base font-semibold text-slate-800 mb-4">Bukti Tayang Uploading</h2>
+                  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                    <div v-for="platform in uploadProofPlatforms" :key="platform.key" class="rounded-xl border border-slate-100 bg-slate-50 p-4">
+                      <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1">{{ platform.label }}</p>
+                      <a v-if="uploadProofs[platform.key]" :href="uploadProofs[platform.key]" target="_blank" class="text-indigo-700 hover:underline break-all">
+                        {{ uploadProofs[platform.key] }}
+                      </a>
+                      <p v-else class="text-slate-400">Belum diisi</p>
                     </div>
                   </div>
                 </div>
@@ -233,6 +250,15 @@ const activeTab = ref('Konten Web');
 const returnNotes = ref('');
 const returnError = ref('');
 
+const uploadProofPlatforms = [
+  { key: 'instagram', label: 'Instagram' },
+  { key: 'facebook', label: 'Facebook' },
+  { key: 'youtube', label: 'YouTube' },
+  { key: 'x', label: 'X' },
+  { key: 'tiktok', label: 'TikTok' },
+  { key: 'website', label: 'Website' },
+];
+
 const statusClass = computed(() => ({
   submitted: 'text-amber-600',
   returned: 'text-red-600',
@@ -284,6 +310,24 @@ const seoKeywordsList = computed(() => {
   }
 
   return [];
+});
+
+const uploadProofs = computed(() => {
+  const proofs = props.article?.upload_proofs;
+
+  if (!proofs) {
+    return {};
+  }
+
+  if (typeof proofs === 'string') {
+    try {
+      return JSON.parse(proofs) || {};
+    } catch (_) {
+      return {};
+    }
+  }
+
+  return proofs;
 });
 
 const instagramMedia = computed(() => {

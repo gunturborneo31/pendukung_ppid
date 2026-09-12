@@ -26,12 +26,10 @@
           <p v-if="form.errors.field" class="text-red-500 text-xs mt-1">{{ form.errors.field }}</p>
         </div>
         <div>
-          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">OPD <span class="text-red-400">*</span></label>
-          <select v-model="form.opd_id" class="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm text-slate-800 focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition" required>
-            <option value="" disabled>Pilih OPD</option>
-            <option v-for="opd in opds" :key="opd.id" :value="opd.id">{{ opd.name }}</option>
-          </select>
-          <p v-if="form.errors.opd_id" class="text-red-500 text-xs mt-1">{{ form.errors.opd_id }}</p>
+          <label class="block text-xs font-semibold text-slate-500 uppercase tracking-wide mb-1.5">Akses OPD <span class="text-red-400">*</span></label>
+          <OpdAccessTablePicker v-model="form.opd_ids" :opds="opds" />
+          <p v-if="form.errors.opd_ids" class="text-red-500 text-xs mt-1">{{ form.errors.opd_ids }}</p>
+          <p v-if="form.errors['opd_ids.0']" class="text-red-500 text-xs mt-1">{{ form.errors['opd_ids.0'] }}</p>
         </div>
         <div class="flex gap-3 pt-2">
           <button type="submit" :disabled="form.processing" class="bg-indigo-600 text-white px-6 py-2.5 rounded-xl text-sm font-medium hover:bg-indigo-700 transition disabled:opacity-50 shadow-sm">
@@ -47,10 +45,12 @@
 <script setup>
 import { Link, useForm } from '@inertiajs/vue3';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import OpdAccessTablePicker from '@/Components/OpdAccessTablePicker.vue';
 
 const props = defineProps({
   user: Object,
   opds: { type: Array, default: () => [] },
+  selected_opd_ids: { type: Array, default: () => [] },
   routeBase: { type: String, default: 'editor.contributors' },
 });
 const routeBase = props.routeBase;
@@ -59,7 +59,7 @@ const form = useForm({
   name: props.user.name,
   email: props.user.email,
   field: props.user.field || '',
-  opd_id: props.user.opd_id ?? '',
+  opd_ids: props.selected_opd_ids.length ? props.selected_opd_ids : (props.user.opd_id ? [props.user.opd_id] : []),
 });
 
 function submit() {

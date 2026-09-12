@@ -127,7 +127,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $article->title }} - Pendukung PPID Bappelitbangda Mahulu</title>
+    <title>{{ $article->title }} - Pendukung PPID </title>
     <meta name="description" content="{{ $seo?->seo_description ?? $article->excerpt }}">
     <meta property="og:title" content="{{ $seo?->og_title ?? $article->title }}">
     <meta property="og:description" content="{{ $seo?->og_description ?? $article->excerpt }}">
@@ -205,7 +205,7 @@
         <div class="topbar">
             <div class="brand" style="display:flex; align-items:center; gap:10px;">
                 <img src="/image/logo_mahulu.png" alt="Logo Mahulu" style="width:32px; height:32px; object-fit:contain;">
-                <span>Pendukung PPID Bappelitbangda Mahulu</span>
+                <span>Pendukung PPID </span>
             </div>
             <span class="badge">Preview Artikel</span>
         </div>

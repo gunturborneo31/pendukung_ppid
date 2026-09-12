@@ -4,13 +4,14 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class Opd extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'code', 'address', 'phone', 'logo', 'is_active'];
+    protected $fillable = ['name', 'code', 'daerah', 'address', 'phone', 'logo', 'is_active'];
 
     protected $casts = [
         'is_active' => 'boolean',
@@ -39,6 +40,12 @@ class Opd extends Model
 
     public function contributors()
     {
-        return $this->users()->where('role', 'contributor');
+        if (!Schema::hasTable('opd_user')) {
+            return $this->users()->where('role', 'contributor');
+        }
+
+        return $this->belongsToMany(User::class, 'opd_user')
+            ->withTimestamps()
+            ->where('role', 'contributor');
     }
 }

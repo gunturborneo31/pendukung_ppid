@@ -9,7 +9,7 @@
       <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-100">
         <img src="/image/logo_mahulu.png" alt="Logo Mahulu" class="w-10 h-10 object-contain flex-shrink-0" />
         <div>
-          <span class="text-sm font-bold text-slate-800 leading-none">Pendukung PPID Bappelitbangda Mahulu</span>
+          <span class="text-sm font-bold text-slate-800 leading-none">Pendukung PPID </span>
           <p class="text-[10px] text-slate-400 mt-0.5">Manajemen Konten</p>
         </div>
       </div>
@@ -28,6 +28,12 @@
         <!-- Contributor -->
         <template v-if="user?.role === 'contributor'">
           <p class="text-[10px] font-semibold text-slate-400 uppercase px-3 pt-4 mb-2 tracking-wider">Artikel</p>
+          <Link href="/articles/create" :class="navLinkClasses($page.url.startsWith('/articles/create'))">
+            <span :class="navIconClasses($page.url.startsWith('/articles/create'))">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            </span>
+            Buat Artikel
+          </Link>
           <Link href="/articles" :class="navLinkClasses($page.url === '/articles' || $page.url.startsWith('/articles?') || /^\/articles\/\d+\/edit$/.test($page.url))">
             <span :class="navIconClasses($page.url === '/articles' || $page.url.startsWith('/articles?') || /^\/articles\/\d+\/edit$/.test($page.url))">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
@@ -42,12 +48,6 @@
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </span>
             Berita Disetujui
-          </Link>
-          <Link href="/articles/create" :class="navLinkClasses($page.url.startsWith('/articles/create'))">
-            <span :class="navIconClasses($page.url.startsWith('/articles/create'))">
-              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
-            </span>
-            Buat Artikel
           </Link>
         </template>
 
@@ -118,6 +118,17 @@
           </Link>
         </template>
 
+        <!-- Uploader -->
+        <template v-if="user?.role === 'uploader'">
+          <p class="text-[10px] font-semibold text-slate-400 uppercase px-3 pt-4 mb-2 tracking-wider">Uploading</p>
+          <Link href="/news/approved" :class="navLinkClasses($page.url.startsWith('/news/approved') || $page.url.startsWith('/upload-proofs/articles/'))">
+            <span :class="navIconClasses($page.url.startsWith('/news/approved') || $page.url.startsWith('/upload-proofs/articles/'))">
+              <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2M7 10l5-5m0 0l5 5m-5-5v12"/></svg>
+            </span>
+            Bukti Tayang
+          </Link>
+        </template>
+
         <!-- Superadmin -->
         <template v-if="user?.role === 'superadmin'">
           <p class="text-[10px] font-semibold text-slate-400 uppercase px-3 pt-4 mb-2 tracking-wider">Administrasi</p>
@@ -137,7 +148,7 @@
             <span :class="navIconClasses($page.url.startsWith('/superadmin/users'))">
               <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             </span>
-            Kelola Editor &amp; Leader
+            Kelola Editor, Leader &amp; Uploader
           </Link>
           <Link href="/superadmin/contributors" :class="navLinkClasses($page.url.startsWith('/superadmin/contributors'))">
             <span :class="navIconClasses($page.url.startsWith('/superadmin/contributors'))">
@@ -197,7 +208,7 @@
       </main>
 
       <footer class="text-center text-[11px] text-slate-300 py-4 border-t border-slate-100">
-        Pendukung PPID Bappelitbangda Mahulu &copy; {{ new Date().getFullYear() }}
+        Pendukung PPID  &copy; {{ new Date().getFullYear() }}
       </footer>
     </div>
   </div>

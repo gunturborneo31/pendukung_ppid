@@ -57,7 +57,7 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Judul Artikel *</label>
-              <input v-model="form.title" type="text" required
+              <input v-model="form.title" type="text"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Tulis judul artikel yang menarik..." />
               <p v-if="form.errors.title" class="text-red-500 text-xs mt-1">{{ form.errors.title }}</p>
@@ -86,7 +86,7 @@
               <TagsInput v-model="form.seo.seo_keywords" />
             </div>
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Kategori</label>
               <select v-model="form.category_id"
@@ -95,10 +95,19 @@
                 <option v-for="cat in categories" :key="cat.id" :value="cat.id">{{ cat.name }}</option>
               </select>
             </div>
+            <div v-if="props.opds.length">
+              <label class="block text-sm font-medium text-gray-700 mb-1">OPD</label>
+              <select v-model="form.opd_id"
+                class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500">
+                <option value="" disabled>Pilih OPD...</option>
+                <option v-for="opd in props.opds" :key="opd.id" :value="opd.id">{{ opd.name }}</option>
+              </select>
+              <p v-if="form.errors.opd_id" class="text-red-500 text-xs mt-1">{{ form.errors.opd_id }}</p>
+            </div>
             <!-- Platform field removed -->
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Tanggal Artikel *</label>
-              <input v-model="form.published_at" type="date" required
+              <input v-model="form.published_at" type="date"
                 class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 placeholder="Tanggal artikel..." />
               <p v-if="form.errors.published_at" class="text-red-500 text-xs mt-1">{{ form.errors.published_at }}</p>
@@ -108,7 +117,7 @@
 
         <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-6 space-y-4">
           <h2 class="font-semibold text-gray-900">Konten Artikel</h2>
-          <ArticleFormTabs>
+          <ArticleFormTabs :show-uploading="false">
             <template #web>
               <div class="space-y-4">
                 <div>
@@ -120,7 +129,7 @@
                     <div class="flex gap-2 mt-2">
                       <label class="text-blue-600 hover:text-blue-700 text-sm font-medium cursor-pointer">
                         Ubah
-                        <input type="file" accept="image/*" class="hidden" @change="handleThumbnail" />
+                        <input type="file" accept="image/*,.heic,.heif,.avif" class="hidden" @change="handleThumbnail" />
                       </label>
                       <button type="button" @click="deleteThumbnail"
                         class="text-red-600 hover:text-red-700 text-sm font-medium">
@@ -129,9 +138,10 @@
                     </div>
                   </div>
                   <div v-else>
-                    <input type="file" accept="image/*" @change="handleThumbnail"
+                    <input type="file" accept="image/*,.heic,.heif,.avif" @change="handleThumbnail"
                       class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
                   </div>
+                  <p v-if="form.errors.thumbnail" class="text-red-500 text-xs mt-1">{{ form.errors.thumbnail }}</p>
                 </div>
                 <TiptapEditor v-model="form.body_web" />
 
@@ -151,8 +161,10 @@
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Media Instagram</label>
-                    <input type="file" accept="image/*,video/*" multiple @change="handleIGMedia"
+                    <input type="file" accept="image/*,.heic,.heif,.avif,video/*" multiple @change="handleIGMedia"
                       class="w-full text-sm text-gray-500 file:mr-3 file:py-1.5 file:px-3 file:rounded file:border-0 file:text-xs file:font-medium file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100" />
+                    <p v-if="form.errors.ig_media" class="text-red-500 text-xs mt-1">{{ form.errors.ig_media }}</p>
+                    <p v-if="form.errors['ig_media.0']" class="text-red-500 text-xs mt-1">{{ form.errors['ig_media.0'] }}</p>
                     <div v-if="form.ig_media.length" class="mt-3 space-y-2">
                       <div v-for="(file, idx) in form.ig_media" :key="`${file.name}-${idx}`"
                         draggable="true" @dragstart="dragStart" @dragend="dragEnd" @dragover.prevent @drop="dropMedia(idx)"
@@ -202,10 +214,25 @@
                 </div>
                 <div>
                   <p class="text-sm font-medium text-gray-700 mb-2">Preview Instagram</p>
-                  <IGPreviewCard :caption="form.caption_ig" :hashtags="form.hashtags_ig" :media="form.ig_media" />
+                  <div class="mb-3">
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Layout Preview</label>
+                    <select v-model="previewAspectRatio"
+                      class="w-full max-w-xs border border-gray-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-500">
+                      <option value="4:6">4:6</option>
+                      <option value="3:4">3:4</option>
+                      <option value="4:5">Potrait</option>
+                    </select>
+                  </div>
+                  <IGPreviewCard
+                    :caption="form.caption_ig"
+                    :hashtags="form.hashtags_ig"
+                    :media="form.ig_media"
+                    :aspect-ratio="previewAspectRatio"
+                  />
                 </div>
               </div>
             </template>
+
           </ArticleFormTabs>
         </div>
 
@@ -223,6 +250,8 @@
                 class="hidden" @change="handleSupportingFiles" />
             </label>
           </div>
+          <p v-if="form.errors.supporting_files" class="text-red-500 text-xs -mt-2">{{ form.errors.supporting_files }}</p>
+          <p v-if="form.errors['supporting_files.0']" class="text-red-500 text-xs -mt-2">{{ form.errors['supporting_files.0'] }}</p>
 
           <div v-if="supportingFiles.length" class="space-y-3">
             <div v-for="(file, idx) in supportingFiles" :key="`${file.name}-${idx}`"
@@ -270,7 +299,20 @@
 
 
         <!-- Actions -->
-        <div class="flex items-center gap-3 pb-6">
+        <div class="flex flex-col items-start gap-3 pb-6">
+          <div v-if="form.progress" class="w-full max-w-md">
+            <div class="h-2 w-full rounded bg-slate-200 overflow-hidden">
+              <div
+                class="h-2 bg-blue-600 transition-all"
+                :style="{ width: `${form.progress.percentage || 0}%` }"
+              />
+            </div>
+            <p class="text-xs text-slate-500 mt-1">Mengunggah file... {{ form.progress.percentage || 0 }}%</p>
+          </div>
+          <p v-if="form.errors.upload_limit" class="text-xs text-red-500">{{ form.errors.upload_limit }}</p>
+          <p v-if="submitError" class="text-xs text-red-500">{{ submitError }}</p>
+
+          <div class="flex items-center gap-3">
           <button type="submit" :disabled="form.processing"
             class="bg-gray-600 text-white px-5 py-2.5 rounded-lg text-sm font-medium hover:bg-gray-700 transition disabled:opacity-50">
             💾 Simpan Draft
@@ -280,6 +322,7 @@
             📤 Simpan & Submit
           </button>
           <Link href="/articles" class="text-gray-500 hover:text-gray-700 text-sm">Batal</Link>
+          </div>
         </div>
       </form>
     </div>
@@ -288,7 +331,7 @@
 
 <script setup>
 
-import { ref, computed, watch, onMounted, nextTick } from 'vue';
+import { ref, computed, onBeforeUnmount, nextTick } from 'vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ArticleFormTabs from '@/Components/ArticleFormTabs.vue';
 import TiptapEditor from '@/Components/TiptapEditor.vue';
@@ -297,8 +340,9 @@ import { Link, useForm } from '@inertiajs/vue3';
 import TagsInput from '@/Components/TagsInput.vue';
 import SeoAgent from '@/Components/SeoAgent.vue';
 
-defineProps({
+const props = defineProps({
   categories: Array,
+  opds: { type: Array, default: () => [] },
 });
 
 const supportingFiles = ref([]);
@@ -306,14 +350,59 @@ const fileDescriptions = ref([]);
 const editFileInput = ref(null);
 let editingFileIdx = null;
 const thumbnailPreview = ref(null);
+const previewAspectRatio = ref('4:5');
+const objectUrlCache = new Map();
+const submitError = ref('');
+
+function fileCacheKey(file) {
+  if (!file || typeof file === 'string') return '';
+  return [file.name ?? '', file.size ?? 0, file.lastModified ?? 0, file.type ?? ''].join('|');
+}
+
+function getOrCreateObjectUrl(file) {
+  if (!file) return '';
+  if (typeof file === 'string') return file;
+
+  const key = fileCacheKey(file);
+  if (!key) return '';
+
+  const existing = objectUrlCache.get(key);
+  if (existing) return existing;
+
+  const created = URL.createObjectURL(file);
+  objectUrlCache.set(key, created);
+  return created;
+}
+
+function revokeObjectUrl(file) {
+  if (!file || typeof file === 'string') return;
+
+  const key = fileCacheKey(file);
+  if (!key) return;
+
+  const url = objectUrlCache.get(key);
+  if (url) {
+    URL.revokeObjectURL(url);
+    objectUrlCache.delete(key);
+  }
+}
+
+function clearObjectUrls() {
+  objectUrlCache.forEach((url) => URL.revokeObjectURL(url));
+  objectUrlCache.clear();
+}
 
 function handleSupportingFiles(e) {
-  const files = Array.from(e.target.files);
+  const files = Array.from(e.target.files || []);
+  form.clearErrors('supporting_files');
+  form.clearErrors('supporting_files.0');
   supportingFiles.value.push(...files);
   files.forEach(() => fileDescriptions.value.push(''));
+  e.target.value = '';
 }
 
 function removeSupportingFile(idx) {
+  revokeObjectUrl(supportingFiles.value[idx]);
   supportingFiles.value.splice(idx, 1);
   fileDescriptions.value.splice(idx, 1);
 }
@@ -328,9 +417,13 @@ function editSupportingFile(idx) {
 function replaceSupportingFile(idx, e) {
   const files = e.target.files;
   if (files && files.length) {
+    form.clearErrors('supporting_files');
+    form.clearErrors('supporting_files.0');
+    revokeObjectUrl(supportingFiles.value[idx]);
     supportingFiles.value.splice(idx, 1, files[0]);
   }
   editingFileIdx = null;
+  e.target.value = '';
 }
 
 const form = useForm({
@@ -341,30 +434,17 @@ const form = useForm({
   hashtags_ig: '',
   status: 'draft',
   category_id: '',
+  opd_id: props.opds.length === 1 ? props.opds[0].id : '',
   published_at: '',
   ig_type: 'feed',
   ig_media: [],
   supporting_files: [],
   supporting_descriptions: [],
   editor_id: '',
+  upload_proofs: {},
   seo: {
     seo_title: '', seo_description: '', seo_keywords: [],
   },
-});
-
-const editors = ref([]);
-const selectedEditorField = ref('');
-
-// Fetch editors from API (or pass as prop)
-onMounted(async () => {
-  // Ganti dengan endpoint yang sesuai
-  const res = await fetch('/api/editors');
-  editors.value = await res.json();
-});
-
-watch(() => form.editor_id, (val) => {
-  const found = editors.value.find(e => e.id == val);
-  selectedEditorField.value = found ? (found.field || 'Umum') : '';
 });
 
 // SEO Score logic
@@ -415,6 +495,10 @@ const seoScoreLabel = computed(() => {
 function handleThumbnail(e) {
   const file = e.target.files[0];
   if (file) {
+    form.clearErrors('thumbnail');
+    if (thumbnailPreview.value) {
+      URL.revokeObjectURL(thumbnailPreview.value);
+    }
     form.thumbnail = file;
     thumbnailPreview.value = URL.createObjectURL(file);
   }
@@ -429,7 +513,9 @@ function deleteThumbnail() {
 }
 
 function handleIGMedia(e) {
-  const files = Array.from(e.target.files);
+  const files = Array.from(e.target.files || []);
+  form.clearErrors('ig_media');
+  form.clearErrors('ig_media.0');
   // Jika sudah ada video, hanya boleh menambah gambar
   if (form.ig_media.some(f => isVideo(f))) {
     // Filter hanya gambar
@@ -438,17 +524,23 @@ function handleIGMedia(e) {
   } else {
     form.ig_media.push(...files);
   }
+  e.target.value = '';
 }
 
 function removeIGMedia(idx) {
+  revokeObjectUrl(form.ig_media[idx]);
   form.ig_media.splice(idx, 1);
 }
 
 function replaceIGMedia(idx, e) {
   const files = e.target.files;
   if (files && files.length) {
+    form.clearErrors('ig_media');
+    form.clearErrors('ig_media.0');
+    revokeObjectUrl(form.ig_media[idx]);
     form.ig_media.splice(idx, 1, files[0]);
   }
+  e.target.value = '';
 }
 
 let draggedIndex = null;
@@ -489,7 +581,20 @@ function moveMediaDown(idx) {
 }
 
 async function save(status) {
+  submitError.value = '';
   form.status = status;
+  form.clearErrors('title');
+  form.clearErrors('published_at');
+
+  if (!form.title || !String(form.title).trim()) {
+    form.setError('title', 'Judul artikel wajib diisi.');
+    return;
+  }
+
+  if (!form.published_at) {
+    form.setError('published_at', 'Tanggal artikel wajib diisi.');
+    return;
+  }
 
   const seoKeywords = Array.isArray(form.seo.seo_keywords)
     ? form.seo.seo_keywords
@@ -522,22 +627,61 @@ async function save(status) {
 
   form.supporting_files = supportingFiles.value;
   form.supporting_descriptions = fileDescriptions.value;
+  form.clearErrors('upload_limit');
   
   // Submit artikel utama
-  await form.transform((data) => ({
+  form.transform((data) => ({
     ...data,
     seo: {
       ...data.seo,
       seo_keywords: seoKeywords,
     },
   })).post('/articles', {
+    forceFormData: true,
+    preserveState: true,
+    preserveScroll: true,
     onSuccess: () => {
       supportingFiles.value = [];
       fileDescriptions.value = [];
+      form.ig_media.forEach((file) => revokeObjectUrl(file));
+      form.ig_media = [];
+      if (thumbnailPreview.value) {
+        URL.revokeObjectURL(thumbnailPreview.value);
+        thumbnailPreview.value = null;
+      }
+      clearObjectUrls();
     },
     onError: (errors) => {
       console.error('Form submission errors:', errors);
-    }
+      if (errors?.thumbnail) {
+        submitError.value = String(errors.thumbnail);
+        return;
+      }
+
+      if (errors?.ig_media) {
+        submitError.value = String(errors.ig_media);
+        return;
+      }
+
+      if (errors?.['ig_media.0']) {
+        submitError.value = String(errors['ig_media.0']);
+        return;
+      }
+
+      if (errors?.['supporting_files.0']) {
+        submitError.value = String(errors['supporting_files.0']);
+        return;
+      }
+
+      if (!errors || Object.keys(errors).length === 0) {
+        submitError.value = 'Gagal menyimpan data. Periksa koneksi atau ukuran file, lalu coba lagi.';
+      }
+    },
+    onFinish: () => {
+      if (!form.hasErrors) {
+        submitError.value = '';
+      }
+    },
   });
 }
 function isImage(file) {
@@ -549,6 +693,13 @@ function isVideo(file) {
 }
 
 function getFileUrl(file) {
-  return file ? URL.createObjectURL(file) : '';
+  return getOrCreateObjectUrl(file);
 }
+
+onBeforeUnmount(() => {
+  if (thumbnailPreview.value) {
+    URL.revokeObjectURL(thumbnailPreview.value);
+  }
+  clearObjectUrls();
+});
 </script>

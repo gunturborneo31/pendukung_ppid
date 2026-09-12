@@ -4,7 +4,7 @@
         <meta charset="utf-8">
         <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <title>{{ config('app.name', 'Pendukung PPID Bappelitbangda Mahulu') }}</title>
+        <title>{{ config('app.name', 'Pendukung PPID ') }}</title>
         <link rel="icon" type="image/png" href="/image/logo_mahulu.png">
 
         @fonts

@@ -191,7 +191,7 @@
             Kelola OPD
           </Link>
           <Link href="/superadmin/users" class="inline-flex items-center gap-2 border border-slate-200 text-slate-600 px-5 py-2.5 rounded-xl text-sm hover:bg-slate-50 transition">
-            Kelola Editor &amp; Leader
+            Kelola Editor, Leader &amp; Uploader
           </Link>
         </div>
 

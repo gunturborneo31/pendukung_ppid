@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <meta name="theme-color" content="#1e40af">
-    <title inertia>{{ config('app.name', 'Pendukung PPID Bappelitbangda Mahulu') }}</title>
+    <title inertia>{{ config('app.name', 'Pendukung PPID ') }}</title>
     <link rel="icon" type="image/png" href="/image/logo_mahulu.png">
     <link rel="apple-touch-icon" href="/image/logo_mahulu.png">
     <link rel="manifest" href="/manifest.webmanifest">

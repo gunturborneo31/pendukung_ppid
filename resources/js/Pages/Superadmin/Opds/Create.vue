@@ -20,6 +20,15 @@
         </div>
 
         <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Daerah</label>
+          <select v-model="form.daerah" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400">
+            <option value="" disabled>Pilih daerah</option>
+            <option v-for="region in regions" :key="region" :value="region">{{ region }}</option>
+          </select>
+          <p v-if="form.errors.daerah" class="text-xs text-red-500 mt-1">{{ form.errors.daerah }}</p>
+        </div>
+
+        <div>
           <label class="block text-xs font-medium text-slate-600 mb-1">Alamat</label>
           <input v-model="form.address" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-200 focus:border-indigo-400" />
         </div>
@@ -52,9 +61,14 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Link, useForm } from '@inertiajs/vue3';
 
+defineProps({
+  regions: Array,
+});
+
 const form = useForm({
   name: '',
   code: '',
+  daerah: '',
   address: '',
   phone: '',
   is_active: true,

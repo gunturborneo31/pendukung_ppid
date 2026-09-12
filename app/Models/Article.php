@@ -5,21 +5,24 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class Article extends Model
 {
     use HasFactory;
+    private static ?bool $hasUploadProofsColumn = null;
 
     protected $fillable = [
         'title', 'slug', 'body_web', 'excerpt', 'thumbnail',
         'caption_ig', 'hashtags_ig', 'status', 'target_platform',
         'author_id', 'editor_id', 'editor_notes', 'published_at',
-        'preview_token', 'category_id', 'opd_id',
+        'preview_token', 'category_id', 'opd_id', 'upload_proofs',
     ];
 
     protected $casts = [
         'body_web' => 'array',
+        'upload_proofs' => 'array',
         'published_at' => 'datetime',
     ];
 
@@ -36,7 +39,8 @@ class Article extends Model
             }
             // Artikel selalu terikat ke OPD milik penulisnya (denormalisasi untuk performa query).
             if (empty($article->opd_id) && $article->author_id) {
-                $article->opd_id = User::find($article->author_id)?->opd_id;
+                $author = User::find($article->author_id);
+                $article->opd_id = $author?->accessibleOpdIds()[0] ?? $author?->opd_id;
             }
         });
 
@@ -74,7 +78,12 @@ class Article extends Model
             return $query;
         }
 
-        return $query->where('opd_id', $user->opd_id);
+        $opdIds = $user->accessibleOpdIds();
+        if (empty($opdIds)) {
+            return $query->whereRaw('1 = 0');
+        }
+
+        return $query->whereIn('opd_id', $opdIds);
     }
 
     public function seo()
@@ -90,5 +99,14 @@ class Article extends Model
     public function activityLogs()
     {
         return $this->hasMany(ActivityLog::class);
+    }
+
+    public static function hasUploadProofsColumn(): bool
+    {
+        if (self::$hasUploadProofsColumn === null) {
+            self::$hasUploadProofsColumn = Schema::hasColumn('articles', 'upload_proofs');
+        }
+
+        return self::$hasUploadProofsColumn;
     }
 }

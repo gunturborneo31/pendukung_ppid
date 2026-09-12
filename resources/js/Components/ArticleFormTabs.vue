@@ -21,21 +21,28 @@
     <div v-show="activeTab === 'ig'">
       <slot name="ig" />
     </div>
+    <div v-if="props.showUploading" v-show="activeTab === 'uploading'">
+      <slot name="uploading" />
+    </div>
     <!-- SEO tab removed -->
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 
 const props = defineProps({
   defaultTab: { type: String, default: 'web' },
+  showUploading: { type: Boolean, default: true },
 });
 
-const tabs = [
+const baseTabs = [
   { id: 'web', label: '🌐 Konten Web' },
   { id: 'ig', label: '📷 Instagram' },
 ];
+const tabs = computed(() => props.showUploading
+  ? [...baseTabs, { id: 'uploading', label: '📤 Uploading' }]
+  : baseTabs);
 
 const activeTab = ref(props.defaultTab);
 </script>

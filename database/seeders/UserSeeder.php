@@ -33,11 +33,18 @@ class UserSeeder extends Seeder
             'role' => 'leader',
         ]);
 
-        // Kontributor wajib terikat pada satu OPD dan hanya bisa mengakses artikel OPD-nya sendiri.
+        User::create([
+            'name' => 'Uploader PPID',
+            'email' => 'uploader@ppid.local',
+            'password' => Hash::make('password'),
+            'role' => 'uploader',
+        ]);
+
+        // Kontributor dapat diberi akses ke satu atau lebih OPD.
         $diskominfo = Opd::where('code', 'DISKOMINFO')->first();
         $disdik = Opd::where('code', 'DISDIK')->first();
 
-        User::create([
+        $contributorDiskominfo = User::create([
             'name' => 'Kontributor Diskominfo',
             'email' => 'contributor@ppid.local',
             'password' => Hash::make('password'),
@@ -45,12 +52,19 @@ class UserSeeder extends Seeder
             'opd_id' => $diskominfo?->id,
         ]);
 
-        User::create([
+        $contributorDisdik = User::create([
             'name' => 'Kontributor Disdik',
             'email' => 'contributor.disdik@ppid.local',
             'password' => Hash::make('password'),
             'role' => 'contributor',
             'opd_id' => $disdik?->id,
         ]);
+
+        if ($diskominfo) {
+            $contributorDiskominfo->accessibleOpds()->syncWithoutDetaching([$diskominfo->id]);
+        }
+        if ($disdik) {
+            $contributorDisdik->accessibleOpds()->syncWithoutDetaching([$disdik->id]);
+        }
     }
 }

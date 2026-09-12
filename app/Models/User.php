@@ -6,11 +6,13 @@ use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Schema;
 
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
     use HasFactory, Notifiable;
+    private static ?bool $hasOpdUserTable = null;
 
     protected $fillable = ['name', 'email', 'password', 'role', 'field', 'opd_id', 'fcm_token'];
 
@@ -45,12 +47,40 @@ class User extends Authenticatable
         return $this->belongsTo(Opd::class);
     }
 
+    public function accessibleOpds()
+    {
+        return $this->belongsToMany(Opd::class, 'opd_user')
+            ->withTimestamps()
+            ->orderBy('opds.name');
+    }
+
+    public function accessibleOpdIds(): array
+    {
+        if (self::$hasOpdUserTable === null) {
+            self::$hasOpdUserTable = Schema::hasTable('opd_user');
+        }
+
+        if (!self::$hasOpdUserTable) {
+            return !empty($this->opd_id) ? [(int) $this->opd_id] : [];
+        }
+
+        $ids = $this->relationLoaded('accessibleOpds')
+            ? $this->accessibleOpds->pluck('id')->map(fn ($id) => (int) $id)->all()
+            : $this->accessibleOpds()->pluck('opds.id')->map(fn ($id) => (int) $id)->all();
+
+        if (empty($ids) && !empty($this->opd_id)) {
+            $ids[] = (int) $this->opd_id;
+        }
+
+        return array_values(array_unique(array_filter($ids)));
+    }
+
     /**
-     * Role yang boleh mengakses data lintas OPD (superadmin, editor, leader).
+     * Role yang boleh mengakses data lintas OPD (superadmin, editor, leader, uploader).
      */
     public function hasCrossOpdAccess(): bool
     {
-        return in_array($this->role, ['superadmin', 'editor', 'leader']);
+        return in_array($this->role, ['superadmin', 'editor', 'leader', 'uploader']);
     }
 
     public function hasRole(string $role): bool

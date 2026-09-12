@@ -28,6 +28,13 @@
               <tr v-for="article in articles.data" :key="article.id" class="hover:bg-slate-50 transition">
                 <td class="px-5 py-3.5">
                   <div class="font-medium text-slate-800 truncate max-w-xs">{{ article.title }}</div>
+                  <div class="mt-1">
+                    <span
+                      class="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-medium"
+                      :class="hasUploadProofs(article.upload_proofs) ? 'bg-blue-50 text-blue-700' : 'bg-slate-100 text-slate-500'">
+                      {{ hasUploadProofs(article.upload_proofs) ? 'Uploading diisi' : 'Uploading kosong' }}
+                    </span>
+                  </div>
                   <div class="text-xs text-slate-400 mt-0.5">{{ formatDate(article.published_at || article.created_at) }}</div>
                 </td>
                 <td class="px-5 py-3.5 hidden md:table-cell">
@@ -50,8 +57,11 @@
                 </td>
                 <td class="px-5 py-3.5">
                   <div class="flex items-center gap-2">
-                    <Link :href="`/editor/articles/${article.id}`" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition font-medium">
-                      Detail
+                    <Link :href="detailUrl(article.id)" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-lg hover:bg-indigo-100 transition font-medium">
+                      {{ detailLabel }}
+                    </Link>
+                    <Link v-if="detailLabel === 'Detail'" :href="`/upload-proofs/articles/${article.id}`" class="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-100 transition font-medium">
+                      Bukti Tayang
                     </Link>
                     <a :href="`/preview/${article.preview_token}`" target="_blank" class="text-xs text-slate-500 hover:text-slate-700 font-medium">
                       Preview
@@ -86,13 +96,38 @@
 
 <script setup>
 import AppLayout from '@/Layouts/AppLayout.vue';
-import { Link } from '@inertiajs/vue3';
+import { Link, usePage } from '@inertiajs/vue3';
+import { computed } from 'vue';
 
 defineProps({ articles: Object });
+const page = usePage();
+const role = computed(() => page.props.auth?.user?.role ?? '');
+const detailLabel = computed(() => role.value === 'editor' ? 'Detail' : 'Bukti Tayang');
+
+function detailUrl(articleId) {
+  return role.value === 'editor'
+    ? `/editor/articles/${articleId}`
+    : `/upload-proofs/articles/${articleId}`;
+}
 
 function formatDate(date) {
   if (!date) return '-';
   return new Date(date).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+function hasUploadProofs(value) {
+  if (!value) return false;
+  const source = typeof value === 'string' ? (() => {
+    try {
+      return JSON.parse(value);
+    } catch (_) {
+      return null;
+    }
+  })() : value;
+
+  if (!source || typeof source !== 'object') return false;
+
+  return Object.values(source).some((item) => typeof item === 'string' && item.trim());
 }
 
 const StatusBadge = {

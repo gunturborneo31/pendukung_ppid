@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Opd;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
 
 class OpdController extends Controller
@@ -21,7 +22,9 @@ class OpdController extends Controller
 
     public function create()
     {
-        return Inertia::render('Superadmin/Opds/Create');
+        return Inertia::render('Superadmin/Opds/Create', [
+            'regions' => $this->regions(),
+        ]);
     }
 
     public function store(Request $request)
@@ -29,6 +32,7 @@ class OpdController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:50|unique:opds,code',
+            'daerah' => ['required', Rule::in($this->regions())],
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:30',
             'is_active' => 'nullable|boolean',
@@ -43,6 +47,7 @@ class OpdController extends Controller
     {
         return Inertia::render('Superadmin/Opds/Edit', [
             'opd' => $opd,
+            'regions' => $this->regions(),
         ]);
     }
 
@@ -51,6 +56,7 @@ class OpdController extends Controller
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'nullable|string|max:50|unique:opds,code,' . $opd->id,
+            'daerah' => ['required', Rule::in($this->regions())],
             'address' => 'nullable|string|max:255',
             'phone' => 'nullable|string|max:30',
             'is_active' => 'nullable|boolean',
@@ -70,5 +76,22 @@ class OpdController extends Controller
         $opd->delete();
 
         return redirect()->route('superadmin.opds.index')->with('message', 'OPD berhasil dihapus.');
+    }
+
+    private function regions(): array
+    {
+        return [
+            'Prov. Kaltim',
+            'Samarinda',
+            'Balikpapan',
+            'Kukar',
+            'Kubar',
+            'Kutim',
+            'Mahulu',
+            'Paser',
+            'Pu',
+            'Bontang',
+            'Berau',
+        ];
     }
 }

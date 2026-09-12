@@ -151,6 +151,9 @@ class EditorController extends Controller
         unset($data['supporting_files']);
         unset($data['supporting_file_delete_ids']);
         unset($data['supporting_descriptions']);
+        if (!Article::hasUploadProofsColumn()) {
+            unset($data['upload_proofs']);
+        }
 
         if (isset($data['thumbnail']) && $request->hasFile('thumbnail')) {
             $data['thumbnail'] = $request->file('thumbnail')->store('thumbnails', 'public');

@@ -17,7 +17,7 @@ if ('serviceWorker' in navigator) {
 }
 
 createInertiaApp({
-    title: (title) => `${title} - Pendukung PPID Bappelitbangda Mahulu`,
+    title: (title) => `${title} - Pendukung PPID `,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),
     setup({ el, App, props, plugin }) {
         return createApp({ render: () => h(App, props) })

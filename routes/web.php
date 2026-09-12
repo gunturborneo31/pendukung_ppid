@@ -65,9 +65,19 @@ Route::middleware(['auth'])->group(function () {
         Route::delete('/editor/contributors/{user}', [UserController::class, 'destroy'])->name('editor.contributors.destroy');
     });
 
-    // Rekap (editor + leader)
-    Route::middleware(['role:contributor,editor,leader'])->group(function () {
+    // Bukti tayang: semua role bisa lihat, hanya uploader bisa ubah.
+    Route::middleware(['role:contributor,editor,leader,uploader,superadmin'])->group(function () {
+        Route::get('/upload-proofs/articles/{article}', [ArticleController::class, 'uploadProofs'])->name('upload-proofs.show');
+    });
+    Route::middleware(['role:uploader'])->group(function () {
+        Route::put('/upload-proofs/articles/{article}', [ArticleController::class, 'updateUploadProofs'])->name('upload-proofs.update');
+    });
+
+    // Rekap
+    Route::middleware(['role:contributor,editor,leader,uploader'])->group(function () {
         Route::get('/news/approved', [DashboardController::class, 'approvedNews'])->name('news.approved');
+    });
+    Route::middleware(['role:contributor,editor,leader'])->group(function () {
         Route::get('/rekap', [RekapController::class, 'index'])->name('rekap.index');
         Route::get('/rekap/export/excel', [RekapController::class, 'exportExcel'])->name('rekap.excel');
         Route::get('/rekap/export/pdf', [RekapController::class, 'exportPdf'])->name('rekap.pdf');
