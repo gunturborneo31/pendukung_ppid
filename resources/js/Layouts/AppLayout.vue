@@ -7,7 +7,6 @@
     >
       <!-- Brand -->
       <div class="flex items-center gap-3 px-6 py-5 border-b border-slate-100">
-        <img src="/image/logo_mahulu.png" alt="Logo Mahulu" class="w-10 h-10 object-contain flex-shrink-0" />
         <div>
           <span class="text-sm font-bold text-slate-800 leading-none">Pendukung PPID </span>
           <p class="text-[10px] text-slate-400 mt-0.5">Manajemen Konten</p>

@@ -3,7 +3,6 @@
     <!-- Left branding panel -->
     <div class="hidden lg:flex flex-col justify-between w-1/2 bg-indigo-700 p-12">
       <div class="flex items-center gap-3">
-        <img src="/image/logo_mahulu.png" alt="Logo Mahulu" class="w-11 h-11 object-contain" />
         <span class="text-white font-bold text-base">Pendukung PPID </span>
       </div>
       <div>
@@ -21,7 +20,6 @@
       <div class="w-full max-w-sm">
         <!-- Mobile brand -->
         <div class="flex items-center gap-2 mb-8 lg:hidden">
-          <img src="/image/logo_mahulu.png" alt="Logo Mahulu" class="w-9 h-9 object-contain" />
           <span class="text-slate-800 font-bold text-sm">Pendukung PPID </span>
         </div>
 

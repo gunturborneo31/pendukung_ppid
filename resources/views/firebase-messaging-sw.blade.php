@@ -18,8 +18,6 @@ if (firebaseConfig.apiKey && firebaseConfig.messagingSenderId && firebaseConfig.
         const notificationTitle = payload?.notification?.title || 'Notifikasi PPID';
         const notificationOptions = {
             body: payload?.notification?.body || '',
-            icon: '/image/logo_mahulu.png',
-            badge: '/image/logo_mahulu.png',
             data: {
                 url: payload?.data?.url || '/dashboard',
             },

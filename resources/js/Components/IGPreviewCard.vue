@@ -2,7 +2,6 @@
   <div class="ig-mockup max-w-sm border border-gray-200 rounded-lg overflow-hidden shadow-sm bg-white">
     <!-- Header -->
     <div class="header flex items-center p-3 gap-2 border-b">
-      <img src="/image/logo_mahulu.png" alt="Logo Mahulu" class="w-8 h-8 object-contain rounded-full bg-white border border-gray-200 p-1" />
       <div>
         <div class="font-semibold text-sm">ppid_account</div>
         <div class="text-xs text-gray-400">Pendukung PPID </div>
@@ -133,18 +132,20 @@ watch(mediaList, (val) => {
   revokeMissingUrls(val);
 });
 
+function normalizeStorageUrl(value) {
+  if (!value) return '';
+  if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')) return value;
+
+  const cleaned = value.trim().replace(/^\/+/g, '').replace(/^storage\//, '').replace(/^public\//, '');
+  return `/storage/${cleaned}`;
+}
+
 function mediaUrl(idx) {
   const m = mediaList.value[idx];
   if (!m) return '';
-  if (typeof m === 'string') return m;
-  if (m.url) {
-    if (m.url.startsWith('http://') || m.url.startsWith('https://') || m.url.startsWith('/')) return m.url;
-    return `/${m.url}`;
-  }
-  if (m.path) {
-    if (m.path.startsWith('http://') || m.path.startsWith('https://') || m.path.startsWith('/')) return m.path;
-    return `/storage/${m.path}`;
-  }
+  if (typeof m === 'string') return normalizeStorageUrl(m);
+  if (m.url) return normalizeStorageUrl(m.url);
+  if (m.path) return normalizeStorageUrl(m.path);
   // Jika File object, buat URL sementara
   if (typeof File !== 'undefined' && m instanceof File) {
     return getOrCreateObjectUrl(m);

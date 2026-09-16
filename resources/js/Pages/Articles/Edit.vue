@@ -744,10 +744,17 @@ function getFileUrl(file) {
   return file ? URL.createObjectURL(file) : '';
 }
 
+function normalizeStorageUrl(value) {
+  if (!value) return '';
+  if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')) return value;
+
+  const cleaned = value.trim().replace(/^\/+/g, '').replace(/^storage\//, '').replace(/^public\//, '');
+  return `/storage/${cleaned}`;
+}
+
 function fileUrl(path) {
   if (!path) return '#';
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) return path;
-  return `/storage/${path}`;
+  return normalizeStorageUrl(path);
 }
 
 function fileName(path) {

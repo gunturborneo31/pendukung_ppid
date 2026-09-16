@@ -134,8 +134,6 @@
     @if($ogImageUrl || $thumbnailUrl)
     <meta property="og:image" content="{{ $ogImageUrl ?? $thumbnailUrl }}">
     @endif
-    <link rel="icon" type="image/png" href="/image/logo_mahulu.png">
-    <link rel="apple-touch-icon" href="/image/logo_mahulu.png">
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
         body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; background: linear-gradient(180deg, #f8fafc 0%, #eef2ff 100%); color: #0f172a; }
@@ -204,13 +202,60 @@
     <div class="page">
         <div class="topbar">
             <div class="brand" style="display:flex; align-items:center; gap:10px;">
-                <img src="/image/logo_mahulu.png" alt="Logo Mahulu" style="width:32px; height:32px; object-fit:contain;">
                 <span>Pendukung PPID </span>
             </div>
             <span class="badge">Preview Artikel</span>
         </div>
 
         <div class="banner">⚠️ Ini halaman preview. Konten dapat disalin atau diunduh sebelum dipublikasikan.</div>
+
+        <!-- Publish links (upload_proofs) -->
+        @php
+            $proofs = (array) ($article->upload_proofs ?? []);
+            $platforms = [
+                'website' => 'Website',
+                'instagram' => 'Instagram',
+                'facebook' => 'Facebook',
+                'youtube' => 'YouTube',
+                'x' => 'X',
+                'tiktok' => 'TikTok',
+            ];
+            $hasPublishLinks = false;
+            foreach ($platforms as $k => $v) {
+                if (!empty($proofs[$k])) { $hasPublishLinks = true; break; }
+            }
+        @endphp
+
+        <section class="card" style="margin:12px 0 0; padding:12px; border-radius:12px;">
+            <div class="card-head">
+                <div>
+                    <div class="card-title">Tautan Publikasi (Bukti Tayangan)</div>
+                    <div class="card-sub">Tautan hasil publikasi ke platform media sosial atau website</div>
+                </div>
+            </div>
+            <div class="detail">
+                @if($hasPublishLinks)
+                    <div style="display:flex;flex-direction:column;gap:8px;">
+                        @foreach($platforms as $key => $label)
+                            @if(!empty($proofs[$key]))
+                                <div style="display:flex;align-items:center;gap:8px;">
+                                    <div style="flex:1;min-width:0;">
+                                        <div class="plain-info-label">{{ $label }}</div>
+                                        <div class="value" style="word-break:break-all;"><a href="{{ $proofs[$key] }}" target="_blank" rel="noopener noreferrer">{{ $proofs[$key] }}</a></div>
+                                    </div>
+                                    <div class="actions" style="display:flex;gap:8px;">
+                                        <a class="btn btn-primary" href="{{ $proofs[$key] }}" target="_blank" rel="noopener noreferrer">Buka</a>
+                                        <button class="btn btn-slate" type="button" onclick='copyText(@js($proofs[$key] ?? ''), "Link disalin")'>Copy</button>
+                                    </div>
+                                </div>
+                            @endif
+                        @endforeach
+                    </div>
+                @else
+                    <div>Belum ada tautan publikasi.</div>
+                @endif
+            </div>
+        </section>
 
         <section class="hero">
             <div class="hero-top">
@@ -253,21 +298,21 @@
                                 <span class="label">Judul</span>
                                 {{ $article->title }}
                             </div>
-                            <button class="btn btn-slate" type="button" onclick="copyText(@js($article->title), 'Judul disalin')">Copy</button>
+                            <button class="btn btn-slate" type="button" onclick='copyText(@js($article->title), "Judul disalin")'>Copy</button>
                         </div>
                         <div class="detail copy-wrap">
                             <div class="value">
                                 <span class="label">Tanggal</span>
                                 {{ $article->published_at ? $article->published_at->translatedFormat('d F Y') : '-' }}
                             </div>
-                            <button class="btn btn-slate" type="button" onclick="copyText(@js(optional($article->published_at)->translatedFormat('d F Y') ?? ''), 'Tanggal disalin')">Copy</button>
+                            <button class="btn btn-slate" type="button" onclick='copyText(@js(optional($article->published_at)->translatedFormat("d F Y") ?? ""), "Tanggal disalin")'>Copy</button>
                         </div>
                         <div class="detail copy-wrap">
                             <div class="value">
                                 <span class="label">Kategori</span>
                                 {{ $article->category->name ?? 'Tanpa Kategori' }}
                             </div>
-                            <button class="btn btn-slate" type="button" onclick="copyText(@js($article->category->name ?? ''), 'Kategori disalin')">Copy</button>
+                            <button class="btn btn-slate" type="button" onclick='copyText(@js($article->category->name ?? ""), "Kategori disalin")'>Copy</button>
                         </div>
                         <div class="plain-info" style="margin-top: 10px;">
                         <div class="plain-info-row">
@@ -318,7 +363,7 @@
                                 <span class="label">Copy Isi Konten</span>
                                 Gunakan tombol di kanan untuk menyalin teks isi website.
                             </div>
-                            <button class="btn btn-primary" type="button" onclick="copyText(@js($bodyPlainText), 'Isi website disalin')">Copy</button>
+                            <button class="btn btn-primary" type="button" onclick='copyText(@js($bodyPlainText), "Isi website disalin")'>Copy</button>
                         </div>
                     </div>
                     <div class="content">
@@ -367,14 +412,14 @@
                                 <span class="label">Caption</span>
                                 {{ $article->caption_ig ?: '-' }}
                             </div>
-                            <button class="btn btn-slate" type="button" onclick="copyText(@js($article->caption_ig ?? ''), 'Caption IG disalin')">Copy</button>
+                            <button class="btn btn-slate" type="button" onclick='copyText(@js($article->caption_ig ?? ""), "Caption IG disalin")'>Copy</button>
                         </div>
                         <div class="detail copy-wrap">
                             <div class="value">
                                 <span class="label">Hashtags</span>
                                 {{ $article->hashtags_ig ?: '-' }}
                             </div>
-                            <button class="btn btn-slate" type="button" onclick="copyText(@js($article->hashtags_ig ?? ''), 'Hashtags IG disalin')">Copy</button>
+                            <button class="btn btn-slate" type="button" onclick='copyText(@js($article->hashtags_ig ?? ""), "Hashtags IG disalin")'>Copy</button>
                         </div>
                     </div>
                 </section>
@@ -411,21 +456,21 @@
                                 <span class="label">SEO Title</span>
                                 {{ $seo?->seo_title ?? '-' }}
                             </div>
-                            <button class="btn btn-slate" type="button" onclick="copyText(@js($seo?->seo_title ?? ''), 'SEO title disalin')">Copy</button>
+                            <button class="btn btn-slate" type="button" onclick='copyText(@js($seo?->seo_title ?? ""), "SEO title disalin")'>Copy</button>
                         </div>
                         <div class="detail copy-wrap">
                             <div class="value">
                                 <span class="label">Meta Description</span>
                                 {{ $seo?->seo_description ?? '-' }}
                             </div>
-                            <button class="btn btn-slate" type="button" onclick="copyText(@js($seo?->seo_description ?? ''), 'Meta description disalin')">Copy</button>
+                            <button class="btn btn-slate" type="button" onclick='copyText(@js($seo?->seo_description ?? ""), "Meta description disalin")'>Copy</button>
                         </div>
                         <div class="detail copy-wrap">
                             <div class="value">
                                 <span class="label">Keywords</span>
                                 {{ $seo?->seo_keywords ?? '-' }}
                             </div>
-                            <button class="btn btn-slate" type="button" onclick="copyText(@js($seo?->seo_keywords ?? ''), 'Keywords disalin')">Copy</button>
+                            <button class="btn btn-slate" type="button" onclick='copyText(@js($seo?->seo_keywords ?? ""), "Keywords disalin")'>Copy</button>
                         </div>
                          <section class="card">
                     <div class="card-head">

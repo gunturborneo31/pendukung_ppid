@@ -288,8 +288,7 @@ const webContentHtml = computed(() => {
 const thumbnailUrl = computed(() => {
   const thumb = props.article?.thumbnail;
   if (!thumb) return '';
-  if (thumb.startsWith('http://') || thumb.startsWith('https://') || thumb.startsWith('/')) return thumb;
-  return `/storage/${thumb}`;
+  return normalizeStorageUrl(thumb);
 });
 
 const seoKeywordsList = computed(() => {
@@ -350,10 +349,17 @@ const supportingFiles = computed(() => {
   return allMedia.filter((m) => m?.alt_text !== 'ig_media');
 });
 
+function normalizeStorageUrl(value) {
+  if (!value) return '';
+  if (value.startsWith('http://') || value.startsWith('https://') || value.startsWith('/')) return value;
+
+  const cleaned = value.trim().replace(/^\/+/g, '').replace(/^storage\//, '').replace(/^public\//, '');
+  return `/storage/${cleaned}`;
+}
+
 function fileUrl(path) {
   if (!path) return '#';
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('/')) return path;
-  return `/storage/${path}`;
+  return normalizeStorageUrl(path);
 }
 
 function fileName(path) {

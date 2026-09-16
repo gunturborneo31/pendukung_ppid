@@ -7,12 +7,11 @@ import { resolvePageComponent } from 'laravel-vite-plugin/inertia-helpers';
 import { ZiggyVue } from '../../vendor/tightenco/ziggy';
 import { registerSW } from 'virtual:pwa-register';
 
-// Registrasi service worker Workbox (precache aset + cache API) agar aplikasi
-// benar-benar bisa dipakai offline saat diinstal sebagai PWA. Tanpa panggilan
-// ini, `vite-plugin-pwa` hanya menghasilkan file sw.js tanpa pernah mendaftarkannya,
-// karena project ini pakai Blade/Inertia (bukan index.html) sehingga auto-inject
-// registrasi bawaan plugin tidak berjalan.
-if ('serviceWorker' in navigator) {
+// Registrasi service worker hanya untuk environment produksi non-lokal.
+// Di domain lokal (.test/localhost), SW sering mengunci browser ke cache lama
+// sehingga aplikasi terlihat "harus npm run dev" padahal aset build sudah ada.
+const isLocalHost = ['localhost', '127.0.0.1'].includes(window.location.hostname) || window.location.hostname.endsWith('.test');
+if (import.meta.env.PROD && !isLocalHost && 'serviceWorker' in navigator) {
     registerSW({ immediate: true });
 }
 
