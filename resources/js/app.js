@@ -15,6 +15,28 @@ if (import.meta.env.PROD && !isLocalHost && 'serviceWorker' in navigator) {
     registerSW({ immediate: true });
 }
 
+// Jika chunk halaman gagal dimuat (biasanya karena aset build lama sudah
+// dihapus setelah deploy baru), muat ulang sekali agar mengambil HTML & aset
+// terbaru, alih-alih menampilkan layar kosong.
+window.addEventListener('vite:preloadError', (event) => {
+    event.preventDefault();
+    const key = 'ppid-preload-reload-at';
+    let last = 0;
+    try { last = Number(sessionStorage.getItem(key) || 0); } catch {}
+    if (Date.now() - last > 10000) {
+        try { sessionStorage.setItem(key, String(Date.now())); } catch {}
+        window.location.reload();
+    }
+});
+
+// Halaman dipulihkan dari bfcache (mis. aplikasi di HP di-resume): segarkan
+// agar data & sesi sesuai kondisi server saat ini.
+window.addEventListener('pageshow', (event) => {
+    if (event.persisted) {
+        window.location.reload();
+    }
+});
+
 createInertiaApp({
     title: (title) => `${title} - Pendukung PPID `,
     resolve: (name) => resolvePageComponent(`./Pages/${name}.vue`, import.meta.glob('./Pages/**/*.vue')),

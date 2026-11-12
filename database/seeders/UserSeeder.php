@@ -6,6 +6,7 @@ use App\Models\Opd;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class UserSeeder extends Seeder
 {
@@ -33,7 +34,7 @@ class UserSeeder extends Seeder
             'role' => 'leader',
         ]);
 
-        User::create([
+        $uploader = User::create([
             'name' => 'Uploader PPID',
             'email' => 'uploader@ppid.local',
             'password' => Hash::make('password'),
@@ -43,6 +44,12 @@ class UserSeeder extends Seeder
         // Kontributor dapat diberi akses ke satu atau lebih OPD.
         $diskominfo = Opd::where('code', 'DISKOMINFO')->first();
         $disdik = Opd::where('code', 'DISDIK')->first();
+
+        // Uploader hanya bisa mengisi bukti tayang untuk OPD yang ditugaskan.
+        $uploader->update(['opd_id' => $diskominfo?->id]);
+        if ($diskominfo && Schema::hasTable('opd_user')) {
+            $uploader->accessibleOpds()->sync([$diskominfo->id]);
+        }
 
         $contributorDiskominfo = User::create([
             'name' => 'Kontributor Diskominfo',

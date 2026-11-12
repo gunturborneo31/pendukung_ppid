@@ -45,9 +45,12 @@ class AdminUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|unique:users,email|max:255',
             'role' => 'required|in:editor,leader,uploader',
-            'opd_ids' => 'nullable|array',
+            // Uploader wajib dibatasi ke OPD tertentu.
+            'opd_ids' => 'nullable|array|required_if:role,uploader',
             'opd_ids.*' => 'integer|distinct|exists:opds,id',
             'password' => 'required|string|min:8',
+        ], [
+            'opd_ids.required_if' => 'Uploader wajib ditugaskan ke minimal satu OPD.',
         ]);
 
         $opdIds = $data['opd_ids'] ?? [];
@@ -103,8 +106,11 @@ class AdminUserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|email|max:255|unique:users,email,' . $user->id,
             'role' => 'required|in:editor,leader,uploader',
-            'opd_ids' => 'nullable|array',
+            // Uploader wajib dibatasi ke OPD tertentu.
+            'opd_ids' => 'nullable|array|required_if:role,uploader',
             'opd_ids.*' => 'integer|distinct|exists:opds,id',
+        ], [
+            'opd_ids.required_if' => 'Uploader wajib ditugaskan ke minimal satu OPD.',
         ]);
 
         $opdIds = $data['opd_ids'] ?? [];

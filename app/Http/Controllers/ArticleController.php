@@ -345,7 +345,18 @@ class ArticleController extends Controller
     {
         $user = auth()->user();
 
-        if (in_array($user->role, ['editor', 'leader', 'superadmin', 'uploader'], true)) {
+        if (in_array($user->role, ['editor', 'leader', 'superadmin'], true)) {
+            return;
+        }
+
+        // Uploader hanya untuk berita dari OPD yang ditunjuk kepadanya.
+        if ($user->role === 'uploader') {
+            abort_unless(
+                $user->canAccessOpd($article->opd_id !== null ? (int) $article->opd_id : null),
+                403,
+                'Berita ini bukan dari OPD yang ditugaskan kepada Anda.'
+            );
+
             return;
         }
 

@@ -54,6 +54,12 @@ export default defineConfig({
                 // Jangan precache junction 'storage' (symlink ke storage/app/public,
                 // berisi file upload user yang dinamis & bisa besar/berkembang terus).
                 globIgnores: ['storage/**'],
+                // Laravel tidak punya index.html. Default plugin ini membuat
+                // NavigationRoute ke 'index.html' yang tidak ada di precache,
+                // sehingga sw.js melempar error "non-precached-url" saat
+                // dievaluasi dan service worker gagal terpasang/ter-update.
+                // Halaman HTML selalu diambil dari server (bukan cache SW).
+                navigateFallback: null,
                 runtimeCaching: [
                     {
                         urlPattern: /^https:\/\/fonts\.googleapis\.com\/.*/i,

@@ -76,11 +76,24 @@ class User extends Authenticatable
     }
 
     /**
-     * Role yang boleh mengakses data lintas OPD (superadmin, editor, leader, uploader).
+     * Role yang boleh mengakses data lintas OPD (superadmin, editor, leader).
+     * Uploader TIDAK termasuk: hanya OPD yang ditunjuk superadmin (opd_user).
      */
     public function hasCrossOpdAccess(): bool
     {
-        return in_array($this->role, ['superadmin', 'editor', 'leader', 'uploader']);
+        return in_array($this->role, ['superadmin', 'editor', 'leader']);
+    }
+
+    /**
+     * Apakah user boleh mengakses data milik OPD tertentu.
+     */
+    public function canAccessOpd(?int $opdId): bool
+    {
+        if ($this->hasCrossOpdAccess()) {
+            return true;
+        }
+
+        return $opdId !== null && in_array($opdId, $this->accessibleOpdIds(), true);
     }
 
     public function hasRole(string $role): bool

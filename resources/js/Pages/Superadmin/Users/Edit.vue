@@ -31,9 +31,10 @@
         </div>
 
         <div>
-          <label class="block text-xs font-medium text-slate-600 mb-1">Akses OPD (opsional)</label>
+          <label class="block text-xs font-medium text-slate-600 mb-1">Akses OPD {{ form.role === 'uploader' ? '(wajib)' : '(opsional)' }}</label>
           <OpdAccessTablePicker v-model="form.opd_ids" :opds="opds" />
-          <p class="text-[11px] text-slate-400 mt-1">Kosongkan semua pilihan jika ingin akses ke semua OPD.</p>
+          <p v-if="form.role === 'uploader'" class="text-[11px] text-amber-600 mt-1">Uploader hanya bisa melihat dan mengisi bukti tayang untuk berita dari OPD yang dipilih. Pilih minimal satu OPD.</p>
+          <p v-else class="text-[11px] text-slate-400 mt-1">Kosongkan semua pilihan jika ingin akses ke semua OPD.</p>
           <p v-if="form.errors.opd_ids" class="text-xs text-red-500 mt-1">{{ form.errors.opd_ids }}</p>
           <p v-if="form.errors['opd_ids.0']" class="text-xs text-red-500 mt-1">{{ form.errors['opd_ids.0'] }}</p>
         </div>
